@@ -10,7 +10,10 @@
     "files": [
         "dist"
     ],
-    "scripts": {
+  "repository": {
+    "url": "https://github.com/recharts/devtools"
+  },
+  "scripts": {
         "build": "tsc",
         "test": "vitest run",
         "lint": "eslint src test --ext .ts",
