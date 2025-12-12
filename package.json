@@ -3,10 +3,10 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Devtools and helper functions for Recharts",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
+    "main": "dist/src/index.js",
+    "types": "dist/src/index.d.ts",
     "files": [
         "dist"
     ],
