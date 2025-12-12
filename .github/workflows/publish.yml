@@ -23,6 +23,10 @@ jobs:
         with:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
+
+      # Ensure npm 11.5.1 or later is installed. GitHub runners have older versions by default. https://github.com/orgs/community/discussions/173102
+      - name: Update npm
+        run: npm install -g npm@latest && npm --version
       - run: npm ci
       - run: npm run build
       - run: npm test
