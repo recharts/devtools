@@ -1,39 +1,49 @@
 {
-    "name": "@recharts/devtools",
-    "publishConfig": {
-        "access": "public"
-    },
-    "version": "0.0.2",
-    "description": "Devtools and helper functions for Recharts",
-    "main": "dist/src/index.js",
-    "types": "dist/src/index.d.ts",
-    "files": [
-        "dist"
-    ],
+  "name": "@recharts/devtools",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "0.0.2",
+  "description": "Devtools and helper functions for Recharts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "repository": {
     "url": "https://github.com/recharts/devtools"
   },
   "scripts": {
-        "build": "tsc",
-        "test": "vitest run",
-        "lint": "eslint src test --ext .ts",
-        "format": "prettier --write \"{src,test}/**/*.ts\"",
-        "release": "node ./scripts/publish.js"
-    },
-    "keywords": [
-        "recharts",
-        "devtools",
-        "charts"
-    ],
-    "author": "Recharts Group",
-    "license": "MIT",
-    "devDependencies": {
-        "@types/node": "^20.0.0",
-        "@typescript-eslint/eslint-plugin": "^6.0.0",
-        "@typescript-eslint/parser": "^6.0.0",
-        "eslint": "^8.0.0",
-        "prettier": "^3.0.0",
-        "typescript": "^5.0.0",
-        "vitest": "^1.0.0"
-    }
+    "build": "tsc",
+    "test": "vitest run",
+    "lint": "eslint src test --ext .ts",
+    "format": "prettier --write \"{src,test}/**/*.ts\"",
+    "release": "node ./scripts/publish.js"
+  },
+  "keywords": [
+    "recharts",
+    "devtools",
+    "charts"
+  ],
+  "author": "Recharts Group",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "recharts": "latest"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0",
+    "recharts": "^3.3.0"
+  }
 }
