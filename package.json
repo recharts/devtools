@@ -11,11 +11,11 @@
         "dist"
     ],
     "scripts": {
-      "build": "tsc",
-      "test": "vitest run",
-      "lint": "eslint src test --ext .ts",
-      "format": "prettier --write \"{src,test}/**/*.ts\"",
-      "publish": "node ./scripts/publish.js"
+        "build": "tsc",
+        "test": "vitest run",
+        "lint": "eslint src test --ext .ts",
+        "format": "prettier --write \"{src,test}/**/*.ts\"",
+        "release": "node ./scripts/publish.js"
     },
     "keywords": [
         "recharts",
