@@ -3,6 +3,7 @@ import { useChartHeight, useChartWidth, usePlotArea } from 'recharts';
 import { SvgDimensionShower } from './utils/SvgDimensionShower';
 import { InspectorDef } from '../types';
 import { ObjectInspector } from './generic/ObjectInspector';
+import { useEventDispatch } from '../components/useEventDispatch';
 
 const Overlay = () => {
     const plotArea = usePlotArea();
@@ -36,6 +37,7 @@ const Overlay = () => {
 
 const Inspector = () => {
     const plotArea = usePlotArea();
+    useEventDispatch(plotArea);
     return <ObjectInspector obj={plotArea} />;
 };
 

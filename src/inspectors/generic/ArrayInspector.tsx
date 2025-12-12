@@ -26,9 +26,6 @@ export function ArrayInspector({
     const typeofArr = typeof arr[0];
     const shouldExpandByDefault = expandByDefault || length <= 1 || (typeofArr !== 'object' && typeofArr !== 'function');
     const [expand, setExpand] = useState(shouldExpandByDefault);
-    function copyToClipboard() {
-        navigator.clipboard.writeText(JSON.stringify(arr, null, 2));
-    }
     return (
         <>
             {expand ? (
@@ -39,10 +36,7 @@ export function ArrayInspector({
                 <button type="button" onClick={() => setExpand(true)}>
                     Expand
                 </button>
-            )}{' '}
-            <button type="button" onClick={copyToClipboard}>
-                Copy to clipboard
-            </button>
+            )}
             <ArrayOfObjectsInspector arr={arr} expand={expand} />
         </>
     );

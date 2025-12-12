@@ -19,10 +19,6 @@ function shouldExpandByDefault(value: unknown) {
 
 function NotPrimitiveInspector({ value }: { value: unknown }) {
     const [expand, setExpand] = useState(shouldExpandByDefault(value));
-    function copyToClipboard() {
-        navigator.clipboard.writeText(JSON.stringify(value, null, 2));
-    }
-
     return (
         <>
             {expand ? (
@@ -33,10 +29,7 @@ function NotPrimitiveInspector({ value }: { value: unknown }) {
                 <button type="button" onClick={() => setExpand(true)}>
                     Expand
                 </button>
-            )}{' '}
-            <button type="button" onClick={copyToClipboard}>
-                Copy to clipboard
-            </button>
+            )}
             {expand ? (
                 <pre>
                     <code>{JSON.stringify(value, null, 2)}</code>

@@ -3,6 +3,7 @@ import { useChartHeight, useChartWidth, useOffset } from 'recharts';
 import { SvgDimensionShower } from './utils/SvgDimensionShower';
 import { InspectorDef } from '../types';
 import { ObjectInspector } from './generic/ObjectInspector';
+import { useEventDispatch } from '../components/useEventDispatch';
 
 const Overlay = () => {
     const offset = useOffset();
@@ -53,6 +54,7 @@ const Overlay = () => {
 
 const Inspector = () => {
     const offset = useOffset();
+    useEventDispatch(offset);
     return <ObjectInspector obj={offset} />;
 };
 

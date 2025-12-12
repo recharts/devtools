@@ -1,0 +1,13 @@
+import { useEffect } from "react";
+import { RECHARTS_DEVTOOLS_PORTAL_ID } from "../constants";
+
+export function useEventDispatch(detail: unknown) {
+    useEffect(() => {
+        const container = document.getElementById(RECHARTS_DEVTOOLS_PORTAL_ID);
+        if (!container) return;
+
+        const event = new CustomEvent('recharts-devtools-change', { detail });
+
+        container.dispatchEvent(event);
+    }, [detail]);
+}
