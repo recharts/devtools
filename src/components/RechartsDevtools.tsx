@@ -27,6 +27,7 @@ type InspectorKey = keyof typeof INSPECTORS;
 export const RechartsDevtools = () => {
     const container = document.getElementById(RECHARTS_DEVTOOLS_PORTAL_ID);
     const [selectedInspector, setSelectedInspector] = useState<InspectorKey>('useChartWidth | useChartHeight');
+    const [isOverlayEnabled, setIsOverlayEnabled] = useState(true);
 
     if (!container) {
         return null;
@@ -36,24 +37,38 @@ export const RechartsDevtools = () => {
 
     return (
         <>
-            {Overlay && <Overlay />}
+            {Overlay && isOverlayEnabled && <Overlay />}
             {createPortal(
                 <div className="recharts-devtools" style={{ fontFamily: 'monospace', fontSize: '12px' }}>
                     <div style={{ marginBottom: '10px', paddingBottom: '10px', borderBottom: '1px solid #ccc' }}>
-                        <label style={{ marginRight: '8px' }}>Inspect Hook:</label>
-                        <select
-                            value={selectedInspector}
-                            onChange={(e) => setSelectedInspector(e.target.value as InspectorKey)}
-                            style={{ padding: '4px' }}
-                        >
-                            {Object.keys(INSPECTORS).map((key) => (
-                                <option key={key} value={key}>{key}</option>
-                            ))}
-                        </select>
+                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px', gap: '8px' }}>
+                            <label>Inspect Hook:</label>
+                            <select
+                                value={selectedInspector}
+                                onChange={(e) => setSelectedInspector(e.target.value as InspectorKey)}
+                                style={{ padding: '4px' }}
+                            >
+                                {Object.keys(INSPECTORS).map((key) => (
+                                    <option key={key} value={key}>{key}</option>
+                                ))}
+                            </select>
+                            {Overlay && (
+                                <div style={{ marginTop: '4px' }}>
+                                    <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={isOverlayEnabled}
+                                            onChange={(e) => setIsOverlayEnabled(e.target.checked)}
+                                            style={{ marginRight: '4px' }}
+                                        />
+                                        Show Overlay on chart
+                                    </label>
+                                </div>
+                            )}
+                        </div>
                     </div>
                     <div style={{ padding: '10px 0' }}>
                         <Inspector />
-                        {Overlay && <div style={{ color: '#666', fontStyle: 'italic', marginTop: '10px' }}>Overlay active on chart</div>}
                     </div>
                 </div>,
                 container,
