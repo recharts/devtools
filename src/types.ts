@@ -1,4 +1,6 @@
+import { ComponentType } from 'react';
+
 export type InspectorDef = {
-    Overlay?: ComponentType;
-    Inspector: ComponentType;
+  Overlay?: ComponentType;
+  Inspector: ComponentType;
 };
