@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { createPortal } from 'react-dom';
 import { RECHARTS_DEVTOOLS_PORTAL_ID } from '../constants';
 import { ChartDimensionInspector } from '../inspectors/ChartDimensionInspector';
@@ -10,6 +10,7 @@ import { XAxisDomainInspector } from '../inspectors/XAxisDomainInspector';
 import { YAxisDomainInspector } from '../inspectors/YAxisDomainInspector';
 import { ActiveTooltipLabelInspector } from '../inspectors/ActiveTooltipLabelInspector';
 import { InspectorDef } from '../types';
+import { useSessionStorageState } from '../hooks/useSessionStorageState';
 
 const INSPECTORS: Record<string, InspectorDef> = {
     'useChartWidth | useChartHeight': ChartDimensionInspector,
@@ -26,8 +27,8 @@ type InspectorKey = keyof typeof INSPECTORS;
 
 export const RechartsDevtools = () => {
     const container = document.getElementById(RECHARTS_DEVTOOLS_PORTAL_ID);
-    const [selectedInspector, setSelectedInspector] = useState<InspectorKey>('useChartWidth | useChartHeight');
-    const [isOverlayEnabled, setIsOverlayEnabled] = useState(true);
+    const [selectedInspector, setSelectedInspector] = useSessionStorageState<InspectorKey>('useChartWidth | useChartHeight');
+    const [isOverlayEnabled, setIsOverlayEnabled] = useSessionStorageState(false);
 
     if (!container) {
         return null;
