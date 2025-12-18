@@ -2,6 +2,8 @@
 
 Devtools for Recharts.
 
+[![npm version](https://badge.fury.io/js/@recharts%2Fdevtools.svg)](https://badge.fury.io/js/@recharts%2Fdevtools)
+
 ## Installation
 
 ```bash
