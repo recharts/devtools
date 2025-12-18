@@ -26,6 +26,15 @@ const INSPECTORS: Record<string, InspectorDef> = {
 
 type InspectorKey = keyof typeof INSPECTORS;
 
+function useSelectedInspector() {
+    const [selectedInspectorId, setSelectedInspectorId] = useSessionStorageState<InspectorKey>('useChartWidth | useChartHeight');
+    const selectedInspector = INSPECTORS[selectedInspectorId];
+    if (!selectedInspector) {
+        setSelectedInspectorId('useChartWidth | useChartHeight');
+    }
+    return { selectedInspectorId, setSelectedInspectorId, selectedInspector };
+}
+
 export const RechartsDevtools = () => {
     const contextId = useRechartsDevtoolsContext();
     const portalId = contextId ?? RECHARTS_DEVTOOLS_PORTAL_ID;
@@ -35,9 +44,8 @@ export const RechartsDevtools = () => {
         setContainer(document.getElementById(portalId));
     }, [portalId]);
 
-    const [selectedInspectorId, setSelectedInspectorId] = useSessionStorageState<InspectorKey>('useChartWidth | useChartHeight');
+    const { selectedInspectorId, setSelectedInspectorId, selectedInspector } = useSelectedInspector();
     const [isOverlayEnabled, setIsOverlayEnabled] = useSessionStorageState(false);
-    const selectedInspector = INSPECTORS[selectedInspectorId];
 
     if (!container || !selectedInspector) {
         return null;
