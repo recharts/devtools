@@ -21,6 +21,7 @@ export const useSessionStorageState = <T>(initialState: T) => {
         try {
             sessionStorage.setItem(id, JSON.stringify(state));
         } catch {
+            /* Ignored intentionally */
         }
     }, [state]);
 
