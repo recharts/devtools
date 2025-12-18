@@ -11,6 +11,7 @@ import { YAxisDomainInspector } from '../inspectors/YAxisDomainInspector';
 import { ActiveTooltipLabelInspector } from '../inspectors/ActiveTooltipLabelInspector';
 import { InspectorDef } from '../types';
 import { useSessionStorageState } from '../hooks/useSessionStorageState';
+import { useRechartsDevtoolsContext } from '../context/RechartsDevtoolsContext';
 
 const INSPECTORS: Record<string, InspectorDef> = {
     'useChartWidth | useChartHeight': ChartDimensionInspector,
@@ -26,15 +27,23 @@ const INSPECTORS: Record<string, InspectorDef> = {
 type InspectorKey = keyof typeof INSPECTORS;
 
 export const RechartsDevtools = () => {
-    const container = document.getElementById(RECHARTS_DEVTOOLS_PORTAL_ID);
-    const [selectedInspector, setSelectedInspector] = useSessionStorageState<InspectorKey>('useChartWidth | useChartHeight');
-    const [isOverlayEnabled, setIsOverlayEnabled] = useSessionStorageState(false);
+    const contextId = useRechartsDevtoolsContext();
+    const portalId = contextId ?? RECHARTS_DEVTOOLS_PORTAL_ID;
+    const [container, setContainer] = React.useState<HTMLElement | null>(null);
 
-    if (!container) {
+    React.useEffect(() => {
+        setContainer(document.getElementById(portalId));
+    }, [portalId]);
+
+    const [selectedInspectorId, setSelectedInspectorId] = useSessionStorageState<InspectorKey>('useChartWidth | useChartHeight');
+    const [isOverlayEnabled, setIsOverlayEnabled] = useSessionStorageState(false);
+    const selectedInspector = INSPECTORS[selectedInspectorId];
+
+    if (!container || !selectedInspector) {
         return null;
     }
 
-    const { Inspector, Overlay } = INSPECTORS[selectedInspector];
+    const { Inspector, Overlay } = selectedInspector
 
     return (
         <>
@@ -45,8 +54,8 @@ export const RechartsDevtools = () => {
                         <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px', gap: '8px' }}>
                             <label>Inspect Hook:</label>
                             <select
-                                value={selectedInspector}
-                                onChange={(e) => setSelectedInspector(e.target.value as InspectorKey)}
+                                value={selectedInspectorId}
+                                onChange={(e) => setSelectedInspectorId(e.target.value as InspectorKey)}
                                 style={{ padding: '4px' }}
                             >
                                 {Object.keys(INSPECTORS).map((key) => (

@@ -1,39 +1,66 @@
 # @recharts/devtools
 
-Shared helper functions and devtools for Recharts projects.
-
-Intended for development and debugging purpose only. We won't stop you from using this in prod but also we won't support it. Expect breaking changes in every release.
+Devtools for Recharts.
 
 ## Installation
 
 ```bash
-npm install @recharts/devtools
+npm install @recharts/devtools --save-dev
 ```
 
 ## Usage
 
-```typescript
-import { random, generateMockData } from '@recharts/devtools';
+### Basic Usage
 
-const gen = random(123); // seeded random generator
-const data = generateMockData(10, 123); // generates 10 mock data points
+Import the `RechartsDevtools` component and render it inside of your chart.
+
+Add a div with specific ID where the devtools will render a portal.
+
+```tsx
+import { RechartsDevtools, RECHARTS_DEVTOOLS_PORTAL_ID } from '@recharts/devtools';
+import { AreaChart } from 'recharts';
+
+function App() {
+  return (
+    <article>
+      <AreaChart>
+        {/* The DevTools component reads state from inside of the chart */}
+        <RechartsDevtools />
+      </AreaChart>
+        {/* The Portal component renders the devtools UI, debugging information, hooks and other stuff */}
+      <div id={RECHARTS_DEVTOOLS_PORTAL_ID} />
+    </article>
+  );
+}
 ```
 
-## Development
+### Multiple Instances (Context Mode)
 
-- `npm run build`: Build the package
-- `npm run test`: Run tests with Vitest
-- `npm run lint`: Lint code
+If you have multiple charts or devtools instances on the same page (e.g., in a documentation site with live editors), you should use the `RechartsDevtoolsContext` and `RechartsDevtoolsPortal` to ensure each devtools instance targets the correct location without ID conflicts.
 
-## Publishing
+1. Wrap your chart and editor/devtools area with `RechartsDevtoolsContext`. One context for one devtools.
+2. Place `RechartsDevtoolsPortal` where you want the devtools UI to be rendered.
+3. `RechartsDevtools` will automatically detect the context and render into the associated portal.
 
-To publish a new version:
+```tsx
+import { RechartsDevtools, RechartsDevtoolsContext, RechartsDevtoolsPortal } from '@recharts/devtools';
+import { AreaChart, LineChart } from 'recharts';
 
-1. Update the version in `package.json` (e.g., `1.0.1`).
-2. Commit the change.
-3. Create a git tag matching the version:
-   ```bash
-   git tag v1.0.1
-   git push origin v1.0.1
-   ```
-4. The GitHub Action `Publish Package` will automatically publish to NPM.
+function EditorWithPreview() {
+  return (
+    <RechartsDevtoolsContext>
+        <AreaChart>
+          <RechartsDevtools />
+        </AreaChart>
+        <RechartsDevtoolsPortal />
+    </RechartsDevtoolsContext>
+      
+    <RechartsDevtoolsContext>
+        <LineChart>
+          <RechartsDevtools />
+        </LineChart>
+        <RechartsDevtoolsPortal />
+    </RechartsDevtoolsContext>
+  );
+}
+```
