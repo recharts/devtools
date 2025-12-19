@@ -1,8 +1,8 @@
 import React from 'react';
 import { useActiveTooltipDataPoints } from 'recharts';
-import { ArrayInspector } from './generic/ArrayInspector';
-import { InspectorDef } from '../types';
-import { useEventDispatch } from '../components/useEventDispatch';
+import { ArrayInspector } from './generic/ArrayInspector.js';
+import { InspectorDef } from '../types.js';
+import { useEventDispatch } from '../components/useEventDispatch.js';
 
 const Inspector = () => {
     const dataPoints = useActiveTooltipDataPoints();

@@ -1,9 +1,9 @@
 import React from 'react';
 import { useChartHeight, useChartWidth, usePlotArea } from 'recharts';
-import { SvgDimensionShower } from './utils/SvgDimensionShower';
-import { InspectorDef } from '../types';
-import { ObjectInspector } from './generic/ObjectInspector';
-import { useEventDispatch } from '../components/useEventDispatch';
+import { SvgDimensionShower } from './utils/SvgDimensionShower.js';
+import { InspectorDef } from '../types.js';
+import { ObjectInspector } from './generic/ObjectInspector.js';
+import { useEventDispatch } from '../components/useEventDispatch.js';
 
 const Overlay = () => {
     const plotArea = usePlotArea();

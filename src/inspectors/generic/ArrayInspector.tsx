@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PrimitiveInspector, serializePrimitive } from './PrimitiveInspector';
+import { PrimitiveInspector, serializePrimitive } from './PrimitiveInspector.js';
 
 function ArrayOfObjectsInspector({ arr, expand }: { arr: ReadonlyArray<unknown>; expand: boolean }) {
     if (!expand) {

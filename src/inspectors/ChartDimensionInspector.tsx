@@ -1,7 +1,7 @@
 import React from 'react';
 import { useChartHeight, useChartWidth } from 'recharts';
-import { InspectorDef } from '../types';
-import { useEventDispatch } from '../components/useEventDispatch';
+import { InspectorDef } from '../types.js';
+import { useEventDispatch } from '../components/useEventDispatch.js';
 
 const Inspector = () => {
     const chartWidth = useChartWidth();

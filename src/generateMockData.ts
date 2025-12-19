@@ -1,4 +1,4 @@
-import { between, random } from './random';
+import { between, random } from './random.js';
 
 export function generateMockData(
     length: number,

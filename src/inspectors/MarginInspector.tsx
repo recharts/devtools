@@ -1,8 +1,8 @@
 import React from 'react';
 import { useChartHeight, useChartWidth, useMargin } from 'recharts';
-import { SvgDimensionShower } from './utils/SvgDimensionShower';
-import { InspectorDef } from '../types';
-import { ObjectInspector } from './generic/ObjectInspector';
+import { SvgDimensionShower } from './utils/SvgDimensionShower.js';
+import { InspectorDef } from '../types.js';
+import { ObjectInspector } from './generic/ObjectInspector.js';
 
 const Overlay = () => {
     const margin = useMargin();

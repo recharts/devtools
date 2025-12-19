@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { RECHARTS_DEVTOOLS_PORTAL_ID } from "../constants";
+import { RECHARTS_DEVTOOLS_PORTAL_ID } from "../constants.js";
 
 export function useEventDispatch(detail: unknown) {
     useEffect(() => {

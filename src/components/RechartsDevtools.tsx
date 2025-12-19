@@ -1,17 +1,17 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { RECHARTS_DEVTOOLS_PORTAL_ID } from '../constants';
-import { ChartDimensionInspector } from '../inspectors/ChartDimensionInspector';
-import { MarginInspector } from '../inspectors/MarginInspector';
-import { OffsetInspector } from '../inspectors/OffsetInspector';
-import { PlotAreaInspector } from '../inspectors/PlotAreaInspector';
-import { UseActiveTooltipDataPointsInspector } from '../inspectors/UseActiveTooltipDataPointsInspector';
-import { XAxisDomainInspector } from '../inspectors/XAxisDomainInspector';
-import { YAxisDomainInspector } from '../inspectors/YAxisDomainInspector';
-import { ActiveTooltipLabelInspector } from '../inspectors/ActiveTooltipLabelInspector';
-import { InspectorDef } from '../types';
-import { useSessionStorageState } from '../hooks/useSessionStorageState';
-import { useRechartsDevtoolsContext } from '../context/RechartsDevtoolsContext';
+import { RECHARTS_DEVTOOLS_PORTAL_ID } from '../constants.js';
+import { ChartDimensionInspector } from '../inspectors/ChartDimensionInspector.js';
+import { MarginInspector } from '../inspectors/MarginInspector.js';
+import { OffsetInspector } from '../inspectors/OffsetInspector.js';
+import { PlotAreaInspector } from '../inspectors/PlotAreaInspector.js';
+import { UseActiveTooltipDataPointsInspector } from '../inspectors/UseActiveTooltipDataPointsInspector.js';
+import { XAxisDomainInspector } from '../inspectors/XAxisDomainInspector.js';
+import { YAxisDomainInspector } from '../inspectors/YAxisDomainInspector.js';
+import { ActiveTooltipLabelInspector } from '../inspectors/ActiveTooltipLabelInspector.js';
+import { InspectorDef } from '../types.js';
+import { useSessionStorageState } from '../hooks/useSessionStorageState.js';
+import { useRechartsDevtoolsContext } from '../context/RechartsDevtoolsContext.js';
 
 const INSPECTORS: Record<string, InspectorDef> = {
     'useChartWidth | useChartHeight': ChartDimensionInspector,

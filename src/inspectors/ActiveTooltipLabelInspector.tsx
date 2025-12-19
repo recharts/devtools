@@ -1,8 +1,8 @@
 import React from 'react';
 import { useActiveTooltipLabel } from 'recharts';
-import { PrimitiveInspector } from './generic/PrimitiveInspector';
-import { InspectorDef } from '../types';
-import { useEventDispatch } from '../components/useEventDispatch';
+import { PrimitiveInspector } from './generic/PrimitiveInspector.js';
+import { InspectorDef } from '../types.js';
+import { useEventDispatch } from '../components/useEventDispatch.js';
 
 const Inspector = () => {
     const activeLabel = useActiveTooltipLabel();
