@@ -8,59 +8,64 @@ import { PrimitiveInspector } from './PrimitiveInspector.js';
  * - arrays with 0 or 1 elements
  */
 function shouldExpandByDefault(value: unknown) {
-    if (Array.isArray(value)) {
-        return value.length <= 1;
-    }
-    if (value != null && typeof value === 'object') {
-        return Object.keys(value).length <= 2;
-    }
-    return true;
+  if (Array.isArray(value)) {
+    return value.length <= 1;
+  }
+  if (value != null && typeof value === 'object') {
+    return Object.keys(value).length <= 2;
+  }
+  return true;
 }
 
 function NotPrimitiveInspector({ value }: { value: unknown }) {
-    const [expand, setExpand] = useState(shouldExpandByDefault(value));
-    return (
-        <>
-            {expand ? (
-                <button type="button" onClick={() => setExpand(false)}>
-                    Collapse
-                </button>
-            ) : (
-                <button type="button" onClick={() => setExpand(true)}>
-                    Expand
-                </button>
-            )}
-            {expand ? (
-                <pre>
-                    <code>{JSON.stringify(value, null, 2)}</code>
-                </pre>
-            ) : (
-                <code>{typeof value}</code>
-            )}
-        </>
-    );
+  const [expand, setExpand] = useState(shouldExpandByDefault(value));
+  return (
+    <>
+      {expand ? (
+        <button type="button" onClick={() => setExpand(false)}>
+          Collapse
+        </button>
+      ) : (
+        <button type="button" onClick={() => setExpand(true)}>
+          Expand
+        </button>
+      )}
+      {expand ? (
+        <pre>
+          <code>{JSON.stringify(value, null, 2)}</code>
+        </pre>
+      ) : (
+        <code>{typeof value}</code>
+      )}
+    </>
+  );
 }
 
 export function ValueInspector({ value }: { value: unknown }) {
-    if (value == null || typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-        return <PrimitiveInspector value={value} />;
-    }
-    return <NotPrimitiveInspector value={value} />;
+  if (
+    value == null ||
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  ) {
+    return <PrimitiveInspector value={value} />;
+  }
+  return <NotPrimitiveInspector value={value} />;
 }
 
-export function ObjectInspector({ obj }: { obj: Record<string, unknown> | undefined }) {
-    if (obj == null) {
-        return <code>{JSON.stringify(obj)}</code>;
-    }
-    const keys = Object.keys(obj);
+export function ObjectInspector({ obj }: { obj: Record<string, any> | undefined }) {
+  if (obj == null) {
+    return <code>{JSON.stringify(obj)}</code>;
+  }
+  const keys = Object.keys(obj);
 
-    return (
-        <div>
-            {keys.map(key => (
-                <div key={key}>
-                    <strong>{key}</strong>: <ValueInspector value={obj[key]} />
-                </div>
-            ))}
+  return (
+    <div>
+      {keys.map((key) => (
+        <div key={key}>
+          <strong>{key}</strong>: <ValueInspector value={obj[key]} />
         </div>
-    );
+      ))}
+    </div>
+  );
 }
