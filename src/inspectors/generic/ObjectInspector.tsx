@@ -48,7 +48,7 @@ export function ValueInspector({ value }: { value: unknown }) {
     return <NotPrimitiveInspector value={value} />;
 }
 
-export function ObjectInspector({ obj }: { obj: Record<string, any> | undefined }) {
+export function ObjectInspector({ obj }: { obj: Record<string, unknown> | undefined }) {
     if (obj == null) {
         return <code>{JSON.stringify(obj)}</code>;
     }
