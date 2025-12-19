@@ -1,4 +1,4 @@
-import { generateMockData } from '../src/generateMockData';
+import { generateMockData } from '../src/generateMockData.js';
 
 describe('generateMockData', () => {
     test('should generate data with correct length', () => {

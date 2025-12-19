@@ -1,4 +1,4 @@
-import { between, random } from '../src/random';
+import { between, random } from '../src/random.js';
 
 describe('random', () => {
     test.each([

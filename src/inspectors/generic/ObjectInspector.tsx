@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PrimitiveInspector, serializePrimitive } from './PrimitiveInspector.js';
+import { PrimitiveInspector } from './PrimitiveInspector.js';
 
 /*
  * Values that are expanded by default:

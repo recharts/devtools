@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useId, useState, useEffect } from 'react';
+import React, { createContext, useContext, useId } from 'react';
 import { RECHARTS_DEVTOOLS_PORTAL_ID } from '../constants.js';
 
 const Context = createContext<string | null>(null);
