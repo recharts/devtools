@@ -14,83 +14,100 @@ import { useSessionStorageState } from '../hooks/useSessionStorageState.js';
 import { useRechartsDevtoolsContext } from '../context/RechartsDevtoolsContext.js';
 
 const INSPECTORS: Record<string, InspectorDef> = {
-    'useChartWidth | useChartHeight': ChartDimensionInspector,
-    useMargin: MarginInspector,
-    useOffset: OffsetInspector,
-    usePlotArea: PlotAreaInspector,
-    useActiveTooltipDataPoints: UseActiveTooltipDataPointsInspector,
-    useXAxisDomain: XAxisDomainInspector,
-    useYAxisDomain: YAxisDomainInspector,
-    useActiveTooltipLabel: ActiveTooltipLabelInspector,
+  'useChartWidth | useChartHeight': ChartDimensionInspector,
+  useMargin: MarginInspector,
+  useOffset: OffsetInspector,
+  usePlotArea: PlotAreaInspector,
+  useActiveTooltipDataPoints: UseActiveTooltipDataPointsInspector,
+  useXAxisDomain: XAxisDomainInspector,
+  useYAxisDomain: YAxisDomainInspector,
+  useActiveTooltipLabel: ActiveTooltipLabelInspector,
 };
 
-type InspectorKey = keyof typeof INSPECTORS;
+export type InspectorKey = keyof typeof INSPECTORS;
+
+const isValidInspectorKey = (key: string | null): key is InspectorKey => {
+  return key != null && key in INSPECTORS;
+};
 
 function useSelectedInspector() {
-    const [selectedInspectorId, setSelectedInspectorId] = useSessionStorageState<InspectorKey>('useChartWidth | useChartHeight');
-    const selectedInspector = INSPECTORS[selectedInspectorId];
-    if (!selectedInspector) {
-        setSelectedInspectorId('useChartWidth | useChartHeight');
-    }
-    return { selectedInspectorId, setSelectedInspectorId, selectedInspector };
+  const [selectedInspectorId, setSelectedInspectorId] = useSessionStorageState<InspectorKey>(
+    'useChartWidth | useChartHeight',
+  );
+  const selectedInspector = INSPECTORS[selectedInspectorId];
+  if (!selectedInspector) {
+    setSelectedInspectorId('useChartWidth | useChartHeight');
+  }
+  return { selectedInspectorId, setSelectedInspectorId, selectedInspector };
 }
 
 export const RechartsDevtools = () => {
-    const contextId = useRechartsDevtoolsContext();
-    const portalId = contextId ?? RECHARTS_DEVTOOLS_PORTAL_ID;
-    const [container, setContainer] = React.useState<HTMLElement | null>(null);
+  const contextId = useRechartsDevtoolsContext();
+  const portalId = contextId ?? RECHARTS_DEVTOOLS_PORTAL_ID;
+  const { selectedInspectorId, setSelectedInspectorId, selectedInspector } = useSelectedInspector();
+  const [container, setContainer] = React.useState<HTMLElement | null>(null);
 
-    React.useEffect(() => {
-        setContainer(document.getElementById(portalId));
-    }, [portalId]);
-
-    const { selectedInspectorId, setSelectedInspectorId, selectedInspector } = useSelectedInspector();
-    const [isOverlayEnabled, setIsOverlayEnabled] = useSessionStorageState(false);
-
-    if (!container || !selectedInspector) {
-        return null;
+  React.useEffect(() => {
+    const el = document.getElementById(portalId);
+    setContainer(el);
+    if (el) {
+      const initialTab = el.getAttribute('data-initial-tab');
+      if (isValidInspectorKey(initialTab)) {
+        setSelectedInspectorId(initialTab);
+      }
     }
+  }, [portalId, setSelectedInspectorId]);
 
-    const { Inspector, Overlay } = selectedInspector
+  const [isOverlayEnabled, setIsOverlayEnabled] = useSessionStorageState(false);
 
-    return (
-        <>
-            {Overlay && isOverlayEnabled && <Overlay />}
-            {createPortal(
-                <div className="recharts-devtools" style={{ fontFamily: 'monospace', fontSize: '12px' }}>
-                    <div style={{ marginBottom: '10px', paddingBottom: '10px', borderBottom: '1px solid #ccc' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px', gap: '8px' }}>
-                            <label>Inspect Hook:</label>
-                            <select
-                                value={selectedInspectorId}
-                                onChange={(e) => setSelectedInspectorId(e.target.value as InspectorKey)}
-                                style={{ padding: '4px' }}
-                            >
-                                {Object.keys(INSPECTORS).map((key) => (
-                                    <option key={key} value={key}>{key}</option>
-                                ))}
-                            </select>
-                            {Overlay && (
-                                <div style={{ marginTop: '4px' }}>
-                                    <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                                        <input
-                                            type="checkbox"
-                                            checked={isOverlayEnabled}
-                                            onChange={(e) => setIsOverlayEnabled(e.target.checked)}
-                                            style={{ marginRight: '4px' }}
-                                        />
-                                        Show Overlay on chart
-                                    </label>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                    <div style={{ padding: '10px 0' }}>
-                        <Inspector />
-                    </div>
-                </div>,
-                container,
-            )}
-        </>
-    );
+  if (!container || !selectedInspector) {
+    return null;
+  }
+
+  const { Inspector, Overlay } = selectedInspector;
+
+  return (
+    <>
+      {Overlay && isOverlayEnabled && <Overlay />}
+      {createPortal(
+        <div className="recharts-devtools" style={{ fontFamily: 'monospace', fontSize: '12px' }}>
+          <div
+            style={{ marginBottom: '10px', paddingBottom: '10px', borderBottom: '1px solid #ccc' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px', gap: '8px' }}>
+              <label>Inspect Hook:</label>
+              <select
+                value={selectedInspectorId}
+                onChange={(e) => setSelectedInspectorId(e.target.value as InspectorKey)}
+                style={{ padding: '4px' }}
+              >
+                {Object.keys(INSPECTORS).map((key) => (
+                  <option key={key} value={key}>
+                    {key}
+                  </option>
+                ))}
+              </select>
+              {Overlay && (
+                <div style={{ marginTop: '4px' }}>
+                  <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                    <input
+                      type="checkbox"
+                      checked={isOverlayEnabled}
+                      onChange={(e) => setIsOverlayEnabled(e.target.checked)}
+                      style={{ marginRight: '4px' }}
+                    />
+                    Show Overlay on chart
+                  </label>
+                </div>
+              )}
+            </div>
+          </div>
+          <div style={{ padding: '10px 0' }}>
+            <Inspector />
+          </div>
+        </div>,
+        container,
+      )}
+    </>
+  );
 };
