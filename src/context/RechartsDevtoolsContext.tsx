@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useId } from 'react';
 import { RECHARTS_DEVTOOLS_PORTAL_ID } from '../constants.js';
-import { InspectorKey } from '../components/RechartsDevtools';
+import { InspectorKey } from '../components/RechartsDevtools.js';
 
 const Context = createContext<string | null>(null);
 
