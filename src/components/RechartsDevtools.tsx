@@ -32,6 +32,7 @@ const isValidInspectorKey = (key: string | null): key is InspectorKey => {
 
 function useSelectedInspector() {
   const [selectedInspectorId, setSelectedInspectorId] = useSessionStorageState<InspectorKey>(
+    'selectedRechartsDevtoolsInspector',
     'useChartWidth | useChartHeight',
   );
   const selectedInspector = INSPECTORS[selectedInspectorId];
@@ -58,7 +59,10 @@ export const RechartsDevtools = () => {
     }
   }, [portalId, setSelectedInspectorId]);
 
-  const [isOverlayEnabled, setIsOverlayEnabled] = useSessionStorageState(false);
+  const [isOverlayEnabled, setIsOverlayEnabled] = useSessionStorageState(
+    'rechartsDevtoolsOverlayEnabled',
+    false,
+  );
 
   if (!container || !selectedInspector) {
     return null;
