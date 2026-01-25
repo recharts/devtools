@@ -7,3 +7,5 @@ export {
   RechartsDevtoolsContext,
 } from './context/RechartsDevtoolsContext.js';
 export { RECHARTS_DEVTOOLS_PORTAL_ID } from './constants.js';
+
+export { useWhyDidYouRender } from './hooks/useWhyDidYouRender.js';
