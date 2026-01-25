@@ -1,0 +1,35 @@
+/**
+ * Array of bright, contrasting colors for annotations.
+ */
+export const ANNOTATION_COLORS = [
+  '#FF0000', // Red
+  '#008000', // Dark Green
+  '#0000FF', // Blue
+  '#FF00FF', // Magenta
+  '#008B8B', // Dark Cyan
+  '#DAA520', // Goldenrod
+  '#FF8000', // Orange
+  '#8000FF', // Purple
+  '#FF0080', // Pink
+  '#228B22', // Forest Green
+];
+
+/**
+ * Get a color for an annotation based on its index.
+ * Colors cycle through the palette.
+ */
+export const getAnnotationColor = (index: number): string => {
+  return ANNOTATION_COLORS[index % ANNOTATION_COLORS.length];
+};
+
+/**
+ * Default annotation style values.
+ */
+export const DEFAULT_ANNOTATION_STYLE = {
+  color: '#FF0000',
+  strokeWidth: 2,
+  strokeDasharray: '4',
+  fill: '#FF0000',
+  opacity: 1,
+  fillOpacity: 0.1,
+};

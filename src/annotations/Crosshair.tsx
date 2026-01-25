@@ -1,0 +1,123 @@
+/**
+ * This annotation allows drawing a crosshair on a chart.
+ *
+ * A crosshair is a combination of horizontal and vertical lines intersecting at a point,
+ * with optional coordinate labels.
+ *
+ * It accepts either pixel coordinates or data values for positioning.
+ *
+ * In case it receives pixel coordinates, it uses a Cross component (raw SVG).
+ * If data values are provided, it uses a combination of two ReferenceLine components.
+ *
+ * TODO: For data-based positioning, we need two ReferenceLine components (one with x, one with y).
+ * However, ReferenceLine with just x or just y will draw a full line across the chart.
+ * This works well for crosshairs but doesn't support truncated crosshairs.
+ */
+import React from 'react';
+import { ReferenceLine } from 'recharts';
+import type { CrosshairAnnotation as CrosshairAnnotationType } from './types.js';
+
+interface CrosshairProps {
+  annotation: CrosshairAnnotationType;
+  showLabels?: boolean;
+}
+
+export function Crosshair({ annotation, showLabels = false }: CrosshairProps) {
+  const { x, y, positionType, style, xAxisId = 0, yAxisId = 0 } = annotation;
+  const { color = 'red', strokeWidth = 2, strokeDasharray = '4', opacity = 1 } = style;
+
+  if (positionType === 'data') {
+    // Use two ReferenceLines for data-based positioning
+    return (
+      <>
+        <ReferenceLine
+          x={x}
+          xAxisId={xAxisId}
+          yAxisId={yAxisId}
+          stroke={color}
+          strokeWidth={strokeWidth}
+          strokeDasharray={strokeDasharray}
+          strokeOpacity={opacity}
+        />
+        <ReferenceLine
+          y={y}
+          xAxisId={xAxisId}
+          yAxisId={yAxisId}
+          stroke={color}
+          strokeWidth={strokeWidth}
+          strokeDasharray={strokeDasharray}
+          strokeOpacity={opacity}
+        />
+      </>
+    );
+  }
+
+  // For pixel-based positioning, use raw SVG
+  const xPixel = typeof x === 'number' ? x : parseFloat(String(x));
+  const yPixel = typeof y === 'number' ? y : parseFloat(String(y));
+
+  if (Number.isNaN(xPixel) || Number.isNaN(yPixel)) {
+    return null;
+  }
+
+  const coordinateText = `${xPixel.toFixed(1)}, ${yPixel.toFixed(1)}`;
+  // Approximate text width calculation (roughly 6.5 pixels per character for 10px bold monospace)
+  const textWidth = coordinateText.length * 6.5;
+
+  return (
+    <g>
+      {/* Vertical line */}
+      <line
+        x1={xPixel}
+        y1={0}
+        x2={xPixel}
+        y2="100%"
+        stroke={color}
+        strokeWidth={strokeWidth}
+        strokeDasharray={strokeDasharray}
+        opacity={opacity}
+        pointerEvents="none"
+      />
+      {/* Horizontal line */}
+      <line
+        x1={0}
+        y1={yPixel}
+        x2="100%"
+        y2={yPixel}
+        stroke={color}
+        strokeWidth={strokeWidth}
+        strokeDasharray={strokeDasharray}
+        opacity={opacity}
+        pointerEvents="none"
+      />
+      {showLabels && (
+        <>
+          {/* Background rectangle for text readability */}
+          <rect
+            x={xPixel + 5}
+            y={yPixel - 25}
+            width={textWidth + 6}
+            height={16}
+            fill="rgba(255, 255, 255, 0.9)"
+            stroke={color}
+            strokeWidth={1}
+            rx={2}
+            pointerEvents="none"
+          />
+          {/* Coordinate text label */}
+          <text
+            x={xPixel + 8}
+            y={yPixel - 12}
+            fill={color}
+            fontSize={10}
+            fontWeight="bold"
+            fontFamily="'Courier New', Courier, monospace"
+            pointerEvents="none"
+          >
+            {coordinateText}
+          </text>
+        </>
+      )}
+    </g>
+  );
+}
