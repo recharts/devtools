@@ -16,11 +16,20 @@ export type {
 } from './types.js';
 
 // Colors and utilities
-export { ANNOTATION_COLORS, getAnnotationColor, DEFAULT_ANNOTATION_STYLE } from './annotationColors.js';
+export {
+  ANNOTATION_COLORS,
+  getAnnotationColor,
+  DEFAULT_ANNOTATION_STYLE,
+} from './annotationColors.js';
 
 // Hooks
 export { useAnnotationsManager } from './useAnnotationsManager.js';
-export type { UseAnnotationsManagerProps, UseAnnotationsManagerReturn } from './useAnnotationsManager.js';
+export type {
+  UseAnnotationsManagerProps,
+  UseAnnotationsManagerReturn,
+} from './useAnnotationsManager.js';
+export { useSnapToData } from './useSnapToData.js';
+export type { SnapToDataOptions, SnapResult } from './useSnapToData.js';
 
 // Components - SVG annotations (render inside chart)
 export { Blanket } from './Blanket.js';

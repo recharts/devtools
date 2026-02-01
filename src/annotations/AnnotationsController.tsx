@@ -1,5 +1,9 @@
 /**
- * @fileover renders UI for managing annotations in a chart.
+ * @fileoverview renders UI form for managing annotations in a chart.
+ *
+ * This is basic UI for demonstration purposes.
+ * In your own application, this UI is probably going to look completely different.
+ * Feel free to reuse what you see here but chances are you'll want to build your own anyway.
  *
  * Allows:
  *
@@ -9,7 +13,8 @@
  * - Positioning annotations using coordinates. Allows both absolute pixel values and data values.
  * - Adding labels to annotations with customizable text and styles and position.
  *
- * This controller is meant to be rendered outside the chart area, typically in a sidebar or modal.
+ * This controller is meant to be rendered outside the chart area, typically in a sidebar or modal,
+ * in an HTML context (not SVG).
  */
 import React, { useState } from 'react';
 import type { Annotation, AnnotationType, AnnotationStyle } from './types.js';
@@ -28,11 +33,13 @@ interface AnnotationsControllerProps {
   annotations: Annotation[];
   isAdding: AnnotationType | null;
   selectedAnnotationId: number | null;
+  snapToData: boolean;
   onStartAdding: (type: AnnotationType) => void;
   onCancelAdding: () => void;
   onDeleteAnnotation: (id: number) => void;
   onUpdateAnnotation: (annotation: Annotation) => void;
   onSelectAnnotation: (id: number | null) => void;
+  onSnapToDataChange: (enabled: boolean) => void;
 }
 
 const buttonStyle: React.CSSProperties = {
@@ -74,15 +81,21 @@ export function AnnotationsController({
   annotations,
   isAdding,
   selectedAnnotationId,
+  snapToData,
   onStartAdding,
   onCancelAdding,
   onDeleteAnnotation,
   onUpdateAnnotation,
   onSelectAnnotation,
+  onSnapToDataChange,
 }: AnnotationsControllerProps) {
   const [expandedAnnotationId, setExpandedAnnotationId] = useState<number | null>(null);
 
-  const handleStyleChange = (annotation: Annotation, styleKey: keyof AnnotationStyle, value: string | number) => {
+  const handleStyleChange = (
+    annotation: Annotation,
+    styleKey: keyof AnnotationStyle,
+    value: string | number,
+  ) => {
     onUpdateAnnotation({
       ...annotation,
       style: {
@@ -103,7 +116,7 @@ export function AnnotationsController({
   };
 
   const toggleExpanded = (id: number) => {
-    setExpandedAnnotationId(prev => (prev === id ? null : id));
+    setExpandedAnnotationId((prev) => (prev === id ? null : id));
   };
 
   return (
@@ -126,9 +139,25 @@ export function AnnotationsController({
         {isAdding && (
           <div style={{ marginTop: '6px', fontSize: '11px', color: '#666' }}>
             Click on the chart to place the annotation
-            {(isAdding === 'rectangle' || isAdding === 'freeformLine' || isAdding === 'circle') && ' (click twice or drag to define dimensions)'}
+            {(isAdding === 'rectangle' || isAdding === 'freeformLine' || isAdding === 'circle') &&
+              ' (click twice or drag to define dimensions)'}
           </div>
         )}
+      </div>
+
+      {/* Snap to data checkbox */}
+      <div style={{ marginBottom: '12px', paddingBottom: '12px', borderBottom: '1px solid #ddd' }}>
+        <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <input
+            type="checkbox"
+            checked={snapToData}
+            onChange={(e) => onSnapToDataChange(e.target.checked)}
+          />
+          <span style={{ fontSize: '11px' }}>Snap to data points</span>
+        </label>
+        <div style={{ fontSize: '10px', color: '#888', marginTop: '4px', marginLeft: '20px' }}>
+          When enabled, annotations will snap to the nearest X/Y data point
+        </div>
       </div>
 
       {/* Annotations list */}
@@ -140,27 +169,37 @@ export function AnnotationsController({
           <div style={{ fontSize: '11px', color: '#666' }}>No annotations yet</div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {annotations.map(annotation => (
+            {annotations.map((annotation) => (
               <div
                 key={annotation.id}
                 style={{
                   padding: '8px',
-                  border: selectedAnnotationId === annotation.id ? '2px solid #007bff' : '1px solid #ddd',
+                  border:
+                    selectedAnnotationId === annotation.id ? '2px solid #007bff' : '1px solid #ddd',
                   borderRadius: '4px',
                   background: '#fafafa',
                 }}
               >
                 {/* Annotation header */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                <div
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}
+                >
                   <input
                     type="color"
                     value={annotation.style.color ?? '#ff0000'}
-                    onChange={e => handleStyleChange(annotation, 'color', e.target.value)}
-                    style={{ width: '20px', height: '20px', padding: 0, border: 'none', cursor: 'pointer' }}
+                    onChange={(e) => handleStyleChange(annotation, 'color', e.target.value)}
+                    style={{
+                      width: '20px',
+                      height: '20px',
+                      padding: 0,
+                      border: 'none',
+                      cursor: 'pointer',
+                    }}
                     title="Change color"
                   />
                   <span style={{ fontWeight: 'bold', fontSize: '11px', flex: 1 }}>
-                    {ANNOTATION_TYPES.find(t => t.type === annotation.type)?.label ?? annotation.type}
+                    {ANNOTATION_TYPES.find((t) => t.type === annotation.type)?.label ??
+                      annotation.type}
                   </span>
                   <button
                     type="button"
@@ -171,7 +210,11 @@ export function AnnotationsController({
                   </button>
                   <button
                     type="button"
-                    onClick={() => onSelectAnnotation(selectedAnnotationId === annotation.id ? null : annotation.id)}
+                    onClick={() =>
+                      onSelectAnnotation(
+                        selectedAnnotationId === annotation.id ? null : annotation.id,
+                      )
+                    }
                     style={selectedAnnotationId === annotation.id ? activeButtonStyle : buttonStyle}
                   >
                     {selectedAnnotationId === annotation.id ? 'Deselect' : 'Select'}
@@ -189,7 +232,9 @@ export function AnnotationsController({
                 {expandedAnnotationId === annotation.id && (
                   <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid #ddd' }}>
                     {/* Position fields based on annotation type */}
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+                    <div
+                      style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}
+                    >
                       {(annotation.type === 'verticalLine' ||
                         annotation.type === 'circle' ||
                         annotation.type === 'label' ||
@@ -198,8 +243,12 @@ export function AnnotationsController({
                           X:
                           <input
                             type="number"
-                            value={typeof annotation.x === 'number' ? annotation.x.toFixed(1) : annotation.x}
-                            onChange={e => handlePositionChange(annotation, 'x', e.target.value)}
+                            value={
+                              typeof annotation.x === 'number'
+                                ? annotation.x.toFixed(1)
+                                : annotation.x
+                            }
+                            onChange={(e) => handlePositionChange(annotation, 'x', e.target.value)}
                             style={inputStyle}
                           />
                         </label>
@@ -212,8 +261,12 @@ export function AnnotationsController({
                           Y:
                           <input
                             type="number"
-                            value={typeof annotation.y === 'number' ? annotation.y.toFixed(1) : annotation.y}
-                            onChange={e => handlePositionChange(annotation, 'y', e.target.value)}
+                            value={
+                              typeof annotation.y === 'number'
+                                ? annotation.y.toFixed(1)
+                                : annotation.y
+                            }
+                            onChange={(e) => handlePositionChange(annotation, 'y', e.target.value)}
                             style={inputStyle}
                           />
                         </label>
@@ -224,8 +277,14 @@ export function AnnotationsController({
                             X1:
                             <input
                               type="number"
-                              value={typeof annotation.x1 === 'number' ? annotation.x1.toFixed(1) : annotation.x1}
-                              onChange={e => handlePositionChange(annotation, 'x1', e.target.value)}
+                              value={
+                                typeof annotation.x1 === 'number'
+                                  ? annotation.x1.toFixed(1)
+                                  : annotation.x1
+                              }
+                              onChange={(e) =>
+                                handlePositionChange(annotation, 'x1', e.target.value)
+                              }
                               style={inputStyle}
                             />
                           </label>
@@ -233,8 +292,14 @@ export function AnnotationsController({
                             Y1:
                             <input
                               type="number"
-                              value={typeof annotation.y1 === 'number' ? annotation.y1.toFixed(1) : annotation.y1}
-                              onChange={e => handlePositionChange(annotation, 'y1', e.target.value)}
+                              value={
+                                typeof annotation.y1 === 'number'
+                                  ? annotation.y1.toFixed(1)
+                                  : annotation.y1
+                              }
+                              onChange={(e) =>
+                                handlePositionChange(annotation, 'y1', e.target.value)
+                              }
                               style={inputStyle}
                             />
                           </label>
@@ -242,8 +307,14 @@ export function AnnotationsController({
                             X2:
                             <input
                               type="number"
-                              value={typeof annotation.x2 === 'number' ? annotation.x2.toFixed(1) : annotation.x2}
-                              onChange={e => handlePositionChange(annotation, 'x2', e.target.value)}
+                              value={
+                                typeof annotation.x2 === 'number'
+                                  ? annotation.x2.toFixed(1)
+                                  : annotation.x2
+                              }
+                              onChange={(e) =>
+                                handlePositionChange(annotation, 'x2', e.target.value)
+                              }
                               style={inputStyle}
                             />
                           </label>
@@ -251,8 +322,14 @@ export function AnnotationsController({
                             Y2:
                             <input
                               type="number"
-                              value={typeof annotation.y2 === 'number' ? annotation.y2.toFixed(1) : annotation.y2}
-                              onChange={e => handlePositionChange(annotation, 'y2', e.target.value)}
+                              value={
+                                typeof annotation.y2 === 'number'
+                                  ? annotation.y2.toFixed(1)
+                                  : annotation.y2
+                              }
+                              onChange={(e) =>
+                                handlePositionChange(annotation, 'y2', e.target.value)
+                              }
                               style={inputStyle}
                             />
                           </label>
@@ -264,7 +341,7 @@ export function AnnotationsController({
                           <input
                             type="number"
                             value={annotation.r}
-                            onChange={e => handlePositionChange(annotation, 'r', e.target.value)}
+                            onChange={(e) => handlePositionChange(annotation, 'r', e.target.value)}
                             style={inputStyle}
                           />
                         </label>
@@ -278,7 +355,9 @@ export function AnnotationsController({
                         <input
                           type="number"
                           value={annotation.style.strokeWidth ?? 2}
-                          onChange={e => handleStyleChange(annotation, 'strokeWidth', parseFloat(e.target.value))}
+                          onChange={(e) =>
+                            handleStyleChange(annotation, 'strokeWidth', parseFloat(e.target.value))
+                          }
                           style={inputStyle}
                           min={0}
                           step={0.5}
@@ -289,7 +368,9 @@ export function AnnotationsController({
                         <input
                           type="number"
                           value={annotation.style.opacity ?? 1}
-                          onChange={e => handleStyleChange(annotation, 'opacity', parseFloat(e.target.value))}
+                          onChange={(e) =>
+                            handleStyleChange(annotation, 'opacity', parseFloat(e.target.value))
+                          }
                           style={inputStyle}
                           min={0}
                           max={1}
@@ -301,7 +382,9 @@ export function AnnotationsController({
                         <input
                           type="text"
                           value={annotation.style.strokeDasharray ?? ''}
-                          onChange={e => handleStyleChange(annotation, 'strokeDasharray', e.target.value)}
+                          onChange={(e) =>
+                            handleStyleChange(annotation, 'strokeDasharray', e.target.value)
+                          }
                           style={{ ...inputStyle, width: '60px' }}
                           placeholder="e.g. 4 2"
                         />
@@ -313,8 +396,16 @@ export function AnnotationsController({
                             <input
                               type="color"
                               value={annotation.style.fill ?? '#cccccc'}
-                              onChange={e => handleStyleChange(annotation, 'fill', e.target.value)}
-                              style={{ width: '20px', height: '20px', padding: 0, border: 'none', cursor: 'pointer' }}
+                              onChange={(e) =>
+                                handleStyleChange(annotation, 'fill', e.target.value)
+                              }
+                              style={{
+                                width: '20px',
+                                height: '20px',
+                                padding: 0,
+                                border: 'none',
+                                cursor: 'pointer',
+                              }}
                             />
                           </label>
                           <label style={labelStyle}>
@@ -322,7 +413,13 @@ export function AnnotationsController({
                             <input
                               type="number"
                               value={annotation.style.fillOpacity ?? 0.1}
-                              onChange={e => handleStyleChange(annotation, 'fillOpacity', parseFloat(e.target.value))}
+                              onChange={(e) =>
+                                handleStyleChange(
+                                  annotation,
+                                  'fillOpacity',
+                                  parseFloat(e.target.value),
+                                )
+                              }
                               style={inputStyle}
                               min={0}
                               max={1}
@@ -341,7 +438,7 @@ export function AnnotationsController({
                           <input
                             type="text"
                             value={annotation.text}
-                            onChange={e =>
+                            onChange={(e) =>
                               onUpdateAnnotation({
                                 ...annotation,
                                 text: e.target.value,

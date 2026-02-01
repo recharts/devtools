@@ -14,6 +14,7 @@ export interface UseAnnotationsManagerReturn {
   followerPosition: { x: number; y: number } | null;
   firstClickPosition: { x: number; y: number } | null;
   selectedAnnotationId: number | null;
+  snapToData: boolean;
 
   // Actions
   startAddingAnnotation: (type: AnnotationType) => void;
@@ -21,6 +22,7 @@ export interface UseAnnotationsManagerReturn {
   deleteAnnotation: (id: number) => void;
   updateAnnotation: (annotation: Annotation) => void;
   selectAnnotation: (id: number | null) => void;
+  setSnapToData: (enabled: boolean) => void;
 
   // Mouse event handlers for the chart
   onChartClick: (x: number, y: number) => void;
@@ -45,6 +47,7 @@ export const useAnnotationsManager = (
   const [isAdding, setIsAdding] = useState<AnnotationType | null>(null);
   const [followerPosition, setFollowerPosition] = useState<{ x: number; y: number } | null>(null);
   const [selectedAnnotationId, setSelectedAnnotationId] = useState<number | null>(null);
+  const [snapToData, setSnapToData] = useState<boolean>(false);
   // Track click positions for multi-click annotations (rectangle, freeform line)
   const [firstClickPosition, setFirstClickPosition] = useState<{ x: number; y: number } | null>(
     null,
@@ -229,11 +232,13 @@ export const useAnnotationsManager = (
     followerPosition,
     firstClickPosition,
     selectedAnnotationId,
+    snapToData,
     startAddingAnnotation,
     cancelAddingAnnotation,
     deleteAnnotation,
     updateAnnotation,
     selectAnnotation,
+    setSnapToData,
     onChartClick,
     onChartMouseDown,
     onChartMouseUp,

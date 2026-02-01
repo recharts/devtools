@@ -1,6 +1,10 @@
 /**
- * Renders all annotations in the chart.
+ * @fileOverview Renders all annotations in the chart.
  * Uses the Blanket to overlay the chart to capture mouse/touch events.
+ *
+ * It is likely that if you write your own Annotations component, you will want to
+ * follow the same pattern as this one. You may be able to reuse some of the hooks
+ * and components from the annotations/ folder.
  */
 import React from 'react';
 import type { Annotation, AnnotationType } from './types.js';
@@ -13,12 +17,15 @@ import { LabelAnnotation } from './LabelAnnotation.js';
 import { FreeformLine } from './FreeformLine.js';
 import { Crosshair } from './Crosshair.js';
 import { getAnnotationColor } from './annotationColors.js';
+import { useSnapToData } from './useSnapToData.js';
+import { getRelativeCoordinate } from 'recharts';
 
 interface RenderAnnotationsProps {
   annotations: Annotation[];
   isAdding: AnnotationType | null;
   followerPosition: { x: number; y: number } | null;
   firstClickPosition?: { x: number; y: number } | null;
+  snapToData?: boolean;
   onChartClick: (x: number, y: number) => void;
   onChartMouseDown: (x: number, y: number) => void;
   onChartMouseUp: (x: number, y: number) => void;
@@ -194,40 +201,71 @@ export function RenderAnnotations({
   isAdding,
   followerPosition,
   firstClickPosition,
+  snapToData: snapToDataEnabled = false,
   onChartClick,
   onChartMouseDown,
   onChartMouseUp,
   onChartMouseMove,
   onChartMouseLeave,
 }: RenderAnnotationsProps) {
+  // Use snap-to-data hook for magnetic snapping to data points
+  const snap = useSnapToData({ enabled: snapToDataEnabled });
+
+  // Apply snapping to follower position for preview
+  const snappedFollowerPosition = React.useMemo(() => {
+    if (!followerPosition) return null;
+    return snap(followerPosition.x, followerPosition.y);
+    // return { x: snapped.x, y: snapped.y };
+  }, [followerPosition, snap]);
+
+  // Apply snapping to first click position
+  const snappedFirstClickPosition = React.useMemo(() => {
+    if (!firstClickPosition) return null;
+    return snap(firstClickPosition.x, firstClickPosition.y);
+    // return { x: snapped.x, y: snapped.y };
+  }, [firstClickPosition, snap]);
+
   const handleBlanketClick = React.useCallback(
     (e: React.MouseEvent) => {
       const rect = e.currentTarget.getBoundingClientRect();
-      onChartClick(e.clientX - rect.left, e.clientY - rect.top);
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const snapped = snap(x, y);
+      onChartClick(snapped.x, snapped.y);
     },
-    [onChartClick],
+    [onChartClick, snap],
   );
 
   const handleBlanketMouseDown = React.useCallback(
     (e: React.MouseEvent) => {
       const rect = e.currentTarget.getBoundingClientRect();
-      onChartMouseDown(e.clientX - rect.left, e.clientY - rect.top);
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const snapped = snap(x, y);
+      onChartMouseDown(snapped.x, snapped.y);
     },
-    [onChartMouseDown],
+    [onChartMouseDown, snap],
   );
 
   const handleBlanketMouseUp = React.useCallback(
     (e: React.MouseEvent) => {
       const rect = e.currentTarget.getBoundingClientRect();
-      onChartMouseUp(e.clientX - rect.left, e.clientY - rect.top);
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const snapped = snap(x, y);
+      onChartMouseUp(snapped.x, snapped.y);
     },
-    [onChartMouseUp],
+    [onChartMouseUp, snap],
   );
 
   const handleBlanketMouseMove = React.useCallback(
     (e: React.MouseEvent) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      onChartMouseMove(e.clientX - rect.left, e.clientY - rect.top);
+      e.preventDefault();
+      e.stopPropagation();
+      const chartCoords = getRelativeCoordinate(e);
+      console.log({ chartCoords });
+      // Note: We pass raw coordinates here; snapping is applied via snappedFollowerPosition
+      onChartMouseMove(chartCoords.chartX, chartCoords.chartY);
     },
     [onChartMouseMove],
   );
@@ -254,14 +292,14 @@ export function RenderAnnotations({
         {annotations.map(renderAnnotation)}
       </g>
 
-      {/* Render the follower annotation preview */}
+      {/* Render the follower annotation preview with snapped coordinates */}
       {isAdding &&
-        followerPosition &&
+        snappedFollowerPosition &&
         renderFollowerAnnotation(
           isAdding,
-          followerPosition,
+          snappedFollowerPosition,
           annotations.length,
-          firstClickPosition,
+          snappedFirstClickPosition,
         )}
     </>
   );

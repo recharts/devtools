@@ -1,5 +1,5 @@
 /**
- * RechartsAnnotations component for adding interactive annotations to charts.
+ * @fileOverview RechartsAnnotations component for adding interactive annotations to charts.
  *
  * This component follows the same pattern as RechartsDevtools:
  * - Renders SVG overlays directly in the chart context
@@ -42,6 +42,7 @@ export const RechartsAnnotations = () => {
         isAdding={annotationsManager.isAdding}
         followerPosition={annotationsManager.followerPosition}
         firstClickPosition={annotationsManager.firstClickPosition}
+        snapToData={annotationsManager.snapToData}
         onChartClick={annotationsManager.onChartClick}
         onChartMouseDown={annotationsManager.onChartMouseDown}
         onChartMouseUp={annotationsManager.onChartMouseUp}
@@ -60,11 +61,13 @@ export const RechartsAnnotations = () => {
               annotations={annotationsManager.annotations}
               isAdding={annotationsManager.isAdding}
               selectedAnnotationId={annotationsManager.selectedAnnotationId}
+              snapToData={annotationsManager.snapToData}
               onStartAdding={annotationsManager.startAddingAnnotation}
               onCancelAdding={annotationsManager.cancelAddingAnnotation}
               onDeleteAnnotation={annotationsManager.deleteAnnotation}
               onUpdateAnnotation={annotationsManager.updateAnnotation}
               onSelectAnnotation={annotationsManager.selectAnnotation}
+              onSnapToDataChange={annotationsManager.setSnapToData}
             />
           </div>,
           container,

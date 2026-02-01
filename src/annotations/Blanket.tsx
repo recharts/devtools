@@ -1,4 +1,5 @@
 import React from 'react';
+import { DefaultZIndexes, ZIndexLayer } from 'recharts';
 
 export interface BlanketProps {
   onClick?: (e: React.MouseEvent) => void;
@@ -39,18 +40,20 @@ export const Blanket = React.memo(function Blanket({
   fill = 'transparent',
 }: BlanketProps) {
   return (
-    <rect
-      x={0}
-      y={0}
-      width="100%"
-      height="100%"
-      fill={fill}
-      style={{ pointerEvents }}
-      onClick={onClick}
-      onMouseMove={onMouseMove}
-      onMouseLeave={onMouseLeave}
-      onMouseDown={onMouseDown}
-      onMouseUp={onMouseUp}
-    />
+    <ZIndexLayer zIndex={DefaultZIndexes.label - 1}>
+      <rect
+        x={0}
+        y={0}
+        width="100%"
+        height="100%"
+        fill={fill}
+        style={{ pointerEvents }}
+        onClick={onClick}
+        onMouseMove={onMouseMove}
+        onMouseLeave={onMouseLeave}
+        onMouseDown={onMouseDown}
+        onMouseUp={onMouseUp}
+      />
+    </ZIndexLayer>
   );
 });
