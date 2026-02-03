@@ -15,7 +15,7 @@
  */
 import React from 'react';
 import { ReferenceLine } from 'recharts';
-import { Annotation, CrosshairAnnotation as CrosshairAnnotationType } from './types.js';
+import { Annotation } from './types.js';
 
 interface CrosshairProps {
   annotation: Annotation;

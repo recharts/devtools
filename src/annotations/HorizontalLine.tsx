@@ -8,7 +8,7 @@
  */
 import React from 'react';
 import { ReferenceLine } from 'recharts';
-import { Annotation, HorizontalLineAnnotation } from './types.js';
+import { Annotation } from './types.js';
 
 interface HorizontalLineProps {
   annotation: Annotation;

@@ -7,8 +7,8 @@
  * If data values are provided, it uses a ReferenceDot component.
  */
 import React from 'react';
-import { ReferenceDot, Dot } from 'recharts';
-import { Annotation, CircleAnnotation as CircleAnnotationType } from './types.js';
+import { Dot, ReferenceDot } from 'recharts';
+import { Annotation } from './types.js';
 import { getDistance } from './getDistance';
 
 interface CircleAnnotationProps {

@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import { Label } from 'recharts';
-import { Annotation, LabelAnnotation as LabelAnnotationType } from './types.js';
+import { Annotation } from './types.js';
 
 interface LabelAnnotationProps {
   annotation: Annotation;

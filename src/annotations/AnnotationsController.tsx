@@ -121,6 +121,256 @@ function SnapModeRadioGroup({
   );
 }
 
+function AnnotationEditForm({
+  annotation,
+  handleStyleChange,
+  onUpdateAnnotation,
+}: {
+  annotation: Annotation;
+  handleStyleChange: (
+    annotation: Annotation,
+    styleKey: keyof AnnotationStyle,
+    value: string | number,
+  ) => void;
+  onUpdateAnnotation: (annotation: Annotation) => void;
+}) {
+  return (
+    <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid #ddd' }}>
+      {/* Position fields based on annotation type */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+        {(annotation.type === 'verticalLine' ||
+          annotation.type === 'circle' ||
+          annotation.type === 'label' ||
+          annotation.type === 'crosshair') && (
+          <label style={labelStyle}>
+            X:
+            <input
+              type="number"
+              value={annotation.pointA.interactionCoordinate.x}
+              onChange={(e) =>
+                onUpdateAnnotation({
+                  ...annotation,
+                  pointA: {
+                    ...annotation.pointA,
+                    interactionCoordinate: {
+                      ...annotation.pointA.interactionCoordinate,
+                      x: parseFloat(e.target.value),
+                    },
+                  },
+                })
+              }
+              style={inputStyle}
+            />
+          </label>
+        )}
+        {(annotation.type === 'horizontalLine' ||
+          annotation.type === 'circle' ||
+          annotation.type === 'label' ||
+          annotation.type === 'crosshair') && (
+          <label style={labelStyle}>
+            Y:
+            <input
+              type="number"
+              value={annotation.pointA.interactionCoordinate.y}
+              onChange={(e) =>
+                onUpdateAnnotation({
+                  ...annotation,
+                  pointA: {
+                    ...annotation.pointA,
+                    interactionCoordinate: {
+                      ...annotation.pointA.interactionCoordinate,
+                      y: parseFloat(e.target.value),
+                    },
+                  },
+                })
+              }
+              style={inputStyle}
+            />
+          </label>
+        )}
+        {(annotation.type === 'rectangle' || annotation.type === 'freeformLine') && (
+          <>
+            <label style={labelStyle}>
+              X1:
+              <input
+                type="number"
+                value={annotation.pointA.interactionCoordinate.x}
+                onChange={(e) =>
+                  onUpdateAnnotation({
+                    ...annotation,
+                    pointA: {
+                      ...annotation.pointA,
+                      interactionCoordinate: {
+                        x: parseFloat(e.target.value),
+                        y: annotation.pointA.interactionCoordinate.y,
+                      },
+                    },
+                  })
+                }
+                style={inputStyle}
+              />
+            </label>
+            <label style={labelStyle}>
+              Y1:
+              <input
+                type="number"
+                value={annotation.pointA.interactionCoordinate.y}
+                onChange={(e) =>
+                  onUpdateAnnotation({
+                    ...annotation,
+                    pointA: {
+                      ...annotation.pointA,
+                      interactionCoordinate: {
+                        x: annotation.pointA.interactionCoordinate.x,
+                        y: parseFloat(e.target.value),
+                      },
+                    },
+                  })
+                }
+                style={inputStyle}
+              />
+            </label>
+            <label style={labelStyle}>
+              X2:
+              <input
+                type="number"
+                value={annotation.pointB?.interactionCoordinate.x ?? ''}
+                onChange={(e) =>
+                  onUpdateAnnotation({
+                    ...annotation,
+                    pointB: {
+                      snappedCoordinate: annotation.pointB?.snappedCoordinate,
+                      dataPoint: annotation.pointB?.dataPoint,
+                      interactionCoordinate: {
+                        x: parseFloat(e.target.value),
+                        y: annotation.pointB?.interactionCoordinate.y ?? 0,
+                      },
+                    },
+                  })
+                }
+                style={inputStyle}
+              />
+            </label>
+            <label style={labelStyle}>
+              Y2:
+              <input
+                type="number"
+                value={annotation.pointB?.interactionCoordinate.y ?? ''}
+                onChange={(e) =>
+                  onUpdateAnnotation({
+                    ...annotation,
+                    pointB: {
+                      snappedCoordinate: annotation.pointB?.snappedCoordinate,
+                      dataPoint: annotation.pointB?.dataPoint,
+                      interactionCoordinate: {
+                        x: annotation.pointB?.interactionCoordinate.x ?? 0,
+                        y: parseFloat(e.target.value),
+                      },
+                    },
+                  })
+                }
+                style={inputStyle}
+              />
+            </label>
+          </>
+        )}
+      </div>
+
+      {/* Style fields */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+        <label style={labelStyle}>
+          Stroke:
+          <input
+            type="number"
+            value={annotation.style.strokeWidth ?? 2}
+            onChange={(e) =>
+              handleStyleChange(annotation, 'strokeWidth', parseFloat(e.target.value))
+            }
+            style={inputStyle}
+            min={0}
+            step={0.5}
+          />
+        </label>
+        <label style={labelStyle}>
+          Opacity:
+          <input
+            type="number"
+            value={annotation.style.opacity ?? 1}
+            onChange={(e) => handleStyleChange(annotation, 'opacity', parseFloat(e.target.value))}
+            style={inputStyle}
+            min={0}
+            max={1}
+            step={0.1}
+          />
+        </label>
+        <label style={labelStyle}>
+          Dash:
+          <input
+            type="text"
+            value={annotation.style.strokeDasharray ?? ''}
+            onChange={(e) => handleStyleChange(annotation, 'strokeDasharray', e.target.value)}
+            style={{ ...inputStyle, width: '60px' }}
+            placeholder="e.g. 4 2"
+          />
+        </label>
+        {(annotation.type === 'rectangle' || annotation.type === 'circle') && (
+          <>
+            <label style={labelStyle}>
+              Fill:
+              <input
+                type="color"
+                value={annotation.style.fill ?? '#cccccc'}
+                onChange={(e) => handleStyleChange(annotation, 'fill', e.target.value)}
+                style={{
+                  width: '20px',
+                  height: '20px',
+                  padding: 0,
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              />
+            </label>
+            <label style={labelStyle}>
+              Fill Opacity:
+              <input
+                type="number"
+                value={annotation.style.fillOpacity ?? 0.1}
+                onChange={(e) =>
+                  handleStyleChange(annotation, 'fillOpacity', parseFloat(e.target.value))
+                }
+                style={inputStyle}
+                min={0}
+                max={1}
+                step={0.1}
+              />
+            </label>
+          </>
+        )}
+      </div>
+
+      {/* Label for label annotation */}
+      {'text' in annotation && (
+        <div style={{ marginTop: '8px' }}>
+          <label style={labelStyle}>
+            Text:
+            <input
+              type="text"
+              value={String(annotation.label?.value ?? '')}
+              onChange={(e) =>
+                onUpdateAnnotation({
+                  ...annotation,
+                  label: { ...annotation.label, value: e.target.value },
+                })
+              }
+              style={{ ...inputStyle, width: '150px' }}
+            />
+          </label>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /**
  * Renders controls for adding, editing, and removing annotations.
  *
@@ -153,16 +403,6 @@ export function AnnotationsController({
         [styleKey]: value,
       },
     });
-  };
-
-  const handlePositionChange = (annotation: Annotation, field: string, value: string) => {
-    const numValue = parseFloat(value);
-    if (!Number.isNaN(numValue)) {
-      onUpdateAnnotation({
-        ...annotation,
-        [field]: numValue,
-      } as Annotation);
-    }
   };
 
   const toggleExpanded = (id: number) => {
@@ -267,226 +507,11 @@ export function AnnotationsController({
 
                 {/* Expanded annotation details */}
                 {expandedAnnotationId === annotation.id && (
-                  <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid #ddd' }}>
-                    {/* Position fields based on annotation type */}
-                    <div
-                      style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}
-                    >
-                      {(annotation.type === 'verticalLine' ||
-                        annotation.type === 'circle' ||
-                        annotation.type === 'label' ||
-                        annotation.type === 'crosshair') && (
-                        <label style={labelStyle}>
-                          X:
-                          <input
-                            type="number"
-                            value={
-                              typeof annotation.x === 'number'
-                                ? annotation.x.toFixed(1)
-                                : annotation.x
-                            }
-                            onChange={(e) => handlePositionChange(annotation, 'x', e.target.value)}
-                            style={inputStyle}
-                          />
-                        </label>
-                      )}
-                      {(annotation.type === 'horizontalLine' ||
-                        annotation.type === 'circle' ||
-                        annotation.type === 'label' ||
-                        annotation.type === 'crosshair') && (
-                        <label style={labelStyle}>
-                          Y:
-                          <input
-                            type="number"
-                            value={
-                              typeof annotation.y === 'number'
-                                ? annotation.y.toFixed(1)
-                                : annotation.y
-                            }
-                            onChange={(e) => handlePositionChange(annotation, 'y', e.target.value)}
-                            style={inputStyle}
-                          />
-                        </label>
-                      )}
-                      {(annotation.type === 'rectangle' || annotation.type === 'freeformLine') && (
-                        <>
-                          <label style={labelStyle}>
-                            X1:
-                            <input
-                              type="number"
-                              value={
-                                typeof annotation.x1 === 'number'
-                                  ? annotation.x1.toFixed(1)
-                                  : annotation.x1
-                              }
-                              onChange={(e) =>
-                                handlePositionChange(annotation, 'x1', e.target.value)
-                              }
-                              style={inputStyle}
-                            />
-                          </label>
-                          <label style={labelStyle}>
-                            Y1:
-                            <input
-                              type="number"
-                              value={
-                                typeof annotation.y1 === 'number'
-                                  ? annotation.y1.toFixed(1)
-                                  : annotation.y1
-                              }
-                              onChange={(e) =>
-                                handlePositionChange(annotation, 'y1', e.target.value)
-                              }
-                              style={inputStyle}
-                            />
-                          </label>
-                          <label style={labelStyle}>
-                            X2:
-                            <input
-                              type="number"
-                              value={
-                                typeof annotation.x2 === 'number'
-                                  ? annotation.x2.toFixed(1)
-                                  : annotation.x2
-                              }
-                              onChange={(e) =>
-                                handlePositionChange(annotation, 'x2', e.target.value)
-                              }
-                              style={inputStyle}
-                            />
-                          </label>
-                          <label style={labelStyle}>
-                            Y2:
-                            <input
-                              type="number"
-                              value={
-                                typeof annotation.y2 === 'number'
-                                  ? annotation.y2.toFixed(1)
-                                  : annotation.y2
-                              }
-                              onChange={(e) =>
-                                handlePositionChange(annotation, 'y2', e.target.value)
-                              }
-                              style={inputStyle}
-                            />
-                          </label>
-                        </>
-                      )}
-                      {annotation.type === 'circle' && (
-                        <label style={labelStyle}>
-                          Radius:
-                          <input
-                            type="number"
-                            value={annotation.r}
-                            onChange={(e) => handlePositionChange(annotation, 'r', e.target.value)}
-                            style={inputStyle}
-                          />
-                        </label>
-                      )}
-                    </div>
-
-                    {/* Style fields */}
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                      <label style={labelStyle}>
-                        Stroke:
-                        <input
-                          type="number"
-                          value={annotation.style.strokeWidth ?? 2}
-                          onChange={(e) =>
-                            handleStyleChange(annotation, 'strokeWidth', parseFloat(e.target.value))
-                          }
-                          style={inputStyle}
-                          min={0}
-                          step={0.5}
-                        />
-                      </label>
-                      <label style={labelStyle}>
-                        Opacity:
-                        <input
-                          type="number"
-                          value={annotation.style.opacity ?? 1}
-                          onChange={(e) =>
-                            handleStyleChange(annotation, 'opacity', parseFloat(e.target.value))
-                          }
-                          style={inputStyle}
-                          min={0}
-                          max={1}
-                          step={0.1}
-                        />
-                      </label>
-                      <label style={labelStyle}>
-                        Dash:
-                        <input
-                          type="text"
-                          value={annotation.style.strokeDasharray ?? ''}
-                          onChange={(e) =>
-                            handleStyleChange(annotation, 'strokeDasharray', e.target.value)
-                          }
-                          style={{ ...inputStyle, width: '60px' }}
-                          placeholder="e.g. 4 2"
-                        />
-                      </label>
-                      {(annotation.type === 'rectangle' || annotation.type === 'circle') && (
-                        <>
-                          <label style={labelStyle}>
-                            Fill:
-                            <input
-                              type="color"
-                              value={annotation.style.fill ?? '#cccccc'}
-                              onChange={(e) =>
-                                handleStyleChange(annotation, 'fill', e.target.value)
-                              }
-                              style={{
-                                width: '20px',
-                                height: '20px',
-                                padding: 0,
-                                border: 'none',
-                                cursor: 'pointer',
-                              }}
-                            />
-                          </label>
-                          <label style={labelStyle}>
-                            Fill Opacity:
-                            <input
-                              type="number"
-                              value={annotation.style.fillOpacity ?? 0.1}
-                              onChange={(e) =>
-                                handleStyleChange(
-                                  annotation,
-                                  'fillOpacity',
-                                  parseFloat(e.target.value),
-                                )
-                              }
-                              style={inputStyle}
-                              min={0}
-                              max={1}
-                              step={0.1}
-                            />
-                          </label>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Label for label annotation */}
-                    {'text' in annotation && (
-                      <div style={{ marginTop: '8px' }}>
-                        <label style={labelStyle}>
-                          Text:
-                          <input
-                            type="text"
-                            value={String(annotation.label?.value ?? '')}
-                            onChange={(e) =>
-                              onUpdateAnnotation({
-                                ...annotation,
-                                label: { ...annotation.label, value: e.target.value },
-                              })
-                            }
-                            style={{ ...inputStyle, width: '150px' }}
-                          />
-                        </label>
-                      </div>
-                    )}
-                  </div>
+                  <AnnotationEditForm
+                    annotation={annotation}
+                    handleStyleChange={handleStyleChange}
+                    onUpdateAnnotation={onUpdateAnnotation}
+                  />
                 )}
               </div>
             ))}

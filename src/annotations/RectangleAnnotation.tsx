@@ -7,8 +7,8 @@
  * If data values are provided, it uses a ReferenceArea component.
  */
 import React from 'react';
-import { ReferenceArea, Rectangle } from 'recharts';
-import { Annotation, RectangleAnnotation as RectangleAnnotationType } from './types.js';
+import { Rectangle, ReferenceArea } from 'recharts';
+import { Annotation } from './types.js';
 
 interface RectangleAnnotationProps {
   annotation: Annotation;

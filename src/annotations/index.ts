@@ -1,17 +1,5 @@
 // Types
-export type {
-  Annotation,
-  AnnotationType,
-  AnnotationStyle,
-  PositionType,
-  HorizontalLineAnnotation,
-  VerticalLineAnnotation,
-  CircleAnnotation as CircleAnnotationType,
-  RectangleAnnotation as RectangleAnnotationType,
-  LabelAnnotation as LabelAnnotationType,
-  FreeformLineAnnotation,
-  CrosshairAnnotation,
-} from './types.js';
+export type { Annotation, AnnotationType, AnnotationStyle, PositionType } from './types.js';
 
 // Colors and utilities
 export {
