@@ -6,8 +6,8 @@
  * follow the same pattern as this one. You may be able to reuse some of the hooks
  * and components from the annotations/ folder.
  */
-import React from 'react';
-import type { Annotation, AnnotationType } from './types.js';
+import React, { ReactNode, useCallback } from 'react';
+import type { Annotation, AnnotationType, SnapMode } from './types.js';
 import { Blanket } from './Blanket.js';
 import { HorizontalLine } from './HorizontalLine.js';
 import { VerticalLine } from './VerticalLine.js';
@@ -17,19 +17,19 @@ import { LabelAnnotation } from './LabelAnnotation.js';
 import { FreeformLine } from './FreeformLine.js';
 import { Crosshair } from './Crosshair.js';
 import { getAnnotationColor } from './annotationColors.js';
-import { useSnapToData } from './useSnapToData.js';
-import { getRelativeCoordinate } from 'recharts';
+import { SnapResult, useSnap } from './useSnap';
+import { DefaultZIndexes, ZIndexLayer } from 'recharts';
 
 interface RenderAnnotationsProps {
   annotations: Annotation[];
   isAdding: AnnotationType | null;
-  followerPosition: { x: number; y: number } | null;
-  firstClickPosition?: { x: number; y: number } | null;
-  snapToData?: boolean;
-  onChartClick: (x: number, y: number) => void;
-  onChartMouseDown: (x: number, y: number) => void;
-  onChartMouseUp: (x: number, y: number) => void;
-  onChartMouseMove: (x: number, y: number) => void;
+  followerPosition: SnapResult | null;
+  firstClickPosition: SnapResult | null;
+  snapMode: SnapMode;
+  onChartClick: (snap: SnapResult) => void;
+  onChartMouseDown: (snap: SnapResult) => void;
+  onChartMouseUp: (snap: SnapResult) => void;
+  onChartMouseMove: (snap: SnapResult) => void;
   onChartMouseLeave: () => void;
 }
 
@@ -59,10 +59,11 @@ function renderAnnotation(annotation: Annotation): React.ReactNode {
  */
 function renderFollowerAnnotation(
   type: AnnotationType,
-  position: { x: number; y: number },
+  snapMode: SnapMode,
+  position: SnapResult,
   annotationCount: number,
-  firstClickPosition?: { x: number; y: number } | null,
-): React.ReactNode {
+  firstClickPosition?: SnapResult | null,
+): ReactNode {
   const color = getAnnotationColor(annotationCount);
   const baseStyle = {
     color,
@@ -74,120 +75,135 @@ function renderFollowerAnnotation(
     pointerEvents: 'none' as const,
   };
   const baseAnnotation = {
+    type,
     id: -1, // Temporary ID for follower
-    positionType: 'pixel' as const,
+    positionType: snapMode === 'none' ? 'pixel' : 'data',
     style: baseStyle,
-  };
+    label: undefined,
+  } as const;
 
-  switch (type) {
-    case 'horizontalLine':
-      return (
-        <HorizontalLine annotation={{ ...baseAnnotation, type: 'horizontalLine', y: position.y }} />
-      );
-    case 'verticalLine':
-      return (
-        <VerticalLine annotation={{ ...baseAnnotation, type: 'verticalLine', x: position.x }} />
-      );
-    case 'circle':
-      if (firstClickPosition) {
-        const r = Math.sqrt(
-          Math.pow(position.x - firstClickPosition.x, 2) +
-            Math.pow(position.y - firstClickPosition.y, 2),
-        );
-        return (
-          <CircleAnnotation
-            annotation={{
-              ...baseAnnotation,
-              type: 'circle',
-              x: firstClickPosition.x,
-              y: firstClickPosition.y,
-              r,
-            }}
-          />
-        );
-      }
-      return (
-        <CircleAnnotation
-          annotation={{ ...baseAnnotation, type: 'circle', x: position.x, y: position.y, r: 10 }}
-        />
-      );
-    case 'rectangle':
-      if (firstClickPosition) {
-        return (
-          <RectangleAnnotation
-            annotation={{
-              ...baseAnnotation,
-              type: 'rectangle',
-              x1: firstClickPosition.x,
-              y1: firstClickPosition.y,
-              x2: position.x,
-              y2: position.y,
-            }}
-          />
-        );
-      }
-      // Before first click, show a small preview rectangle at cursor
-      return (
-        <RectangleAnnotation
-          annotation={{
-            ...baseAnnotation,
-            type: 'rectangle',
-            x1: position.x,
-            y1: position.y,
-            x2: position.x + 50,
-            y2: position.y + 50,
-          }}
-        />
-      );
-    case 'label':
-      return (
-        <LabelAnnotation
-          annotation={{
-            ...baseAnnotation,
-            type: 'label',
-            x: position.x,
-            y: position.y,
-            text: 'Label',
-          }}
-        />
-      );
-    case 'freeformLine':
-      if (firstClickPosition) {
-        return (
-          <FreeformLine
-            annotation={{
-              ...baseAnnotation,
-              type: 'freeformLine',
-              x1: firstClickPosition.x,
-              y1: firstClickPosition.y,
-              x2: position.x,
-              y2: position.y,
-            }}
-          />
-        );
-      }
-      // Before first click, show a small preview line at cursor
-      return (
-        <FreeformLine
-          annotation={{
-            ...baseAnnotation,
-            type: 'freeformLine',
-            x1: position.x - 25,
-            y1: position.y - 25,
-            x2: position.x + 25,
-            y2: position.y + 25,
-          }}
-        />
-      );
-    case 'crosshair':
-      return (
-        <Crosshair
-          annotation={{ ...baseAnnotation, type: 'crosshair', x: position.x, y: position.y }}
-        />
-      );
-    default:
-      return null;
+  if (firstClickPosition == null) {
+    return renderAnnotation({
+      ...baseAnnotation,
+      pointA: position,
+    });
   }
+
+  return renderAnnotation({
+    ...baseAnnotation,
+    pointA: firstClickPosition,
+    pointB: position,
+  });
+
+  // switch (type) {
+  //   case 'horizontalLine':
+  //     return (
+  //       <HorizontalLine annotation={{ ...baseAnnotation, type: 'horizontalLine', y: position.y }} />
+  //     );
+  //   case 'verticalLine':
+  //     return (
+  //       <VerticalLine annotation={{ ...baseAnnotation, type: 'verticalLine', x: position.x }} />
+  //     );
+  //   case 'circle':
+  //     if (firstClickPosition) {
+  //       const r = Math.sqrt(
+  //         Math.pow(position.x - firstClickPosition.x, 2) +
+  //           Math.pow(position.y - firstClickPosition.y, 2),
+  //       );
+  //       return (
+  //         <CircleAnnotation
+  //           annotation={{
+  //             ...baseAnnotation,
+  //             type: 'circle',
+  //             x: firstClickPosition.x,
+  //             y: firstClickPosition.y,
+  //             r,
+  //           }}
+  //         />
+  //       );
+  //     }
+  //     return (
+  //       <CircleAnnotation
+  //         annotation={{ ...baseAnnotation, type: 'circle', x: position.x, y: position.y, r: 10 }}
+  //       />
+  //     );
+  //   case 'rectangle':
+  //     if (firstClickPosition) {
+  //       return (
+  //         <RectangleAnnotation
+  //           annotation={{
+  //             ...baseAnnotation,
+  //             type: 'rectangle',
+  //             x1: firstClickPosition.x,
+  //             y1: firstClickPosition.y,
+  //             x2: position.x,
+  //             y2: position.y,
+  //           }}
+  //         />
+  //       );
+  //     }
+  //     // Before first click, show a small preview rectangle at cursor
+  //     return (
+  //       <RectangleAnnotation
+  //         annotation={{
+  //           ...baseAnnotation,
+  //           type: 'rectangle',
+  //           x1: position.x,
+  //           y1: position.y,
+  //           x2: position.x + 50,
+  //           y2: position.y + 50,
+  //         }}
+  //       />
+  //     );
+  //   case 'label':
+  //     return (
+  //       <LabelAnnotation
+  //         annotation={{
+  //           ...baseAnnotation,
+  //           type: 'label',
+  //           x: position.x,
+  //           y: position.y,
+  //           text: 'Label',
+  //         }}
+  //       />
+  //     );
+  //   case 'freeformLine':
+  //     if (firstClickPosition) {
+  //       return (
+  //         <FreeformLine
+  //           annotation={{
+  //             ...baseAnnotation,
+  //             type: 'freeformLine',
+  //             x1: firstClickPosition.x,
+  //             y1: firstClickPosition.y,
+  //             x2: position.x,
+  //             y2: position.y,
+  //           }}
+  //         />
+  //       );
+  //     }
+  //     // Before first click, show a small preview line at cursor
+  //     return (
+  //       <FreeformLine
+  //         annotation={{
+  //           ...baseAnnotation,
+  //           type: 'freeformLine',
+  //           x1: position.x - 25,
+  //           y1: position.y - 25,
+  //           x2: position.x + 25,
+  //           y2: position.y + 25,
+  //         }}
+  //       />
+  //     );
+  //   case 'crosshair':
+  //     return (
+  //       <Crosshair
+  //         annotation={{ ...baseAnnotation, type: 'crosshair', x: position.x, y: position.y }}
+  //       />
+  //     );
+  //   default:
+  //     return null;
+  // }
 }
 
 /**
@@ -201,77 +217,59 @@ export function RenderAnnotations({
   isAdding,
   followerPosition,
   firstClickPosition,
-  snapToData: snapToDataEnabled = false,
+  snapMode,
   onChartClick,
   onChartMouseDown,
   onChartMouseUp,
   onChartMouseMove,
   onChartMouseLeave,
 }: RenderAnnotationsProps) {
-  // Use snap-to-data hook for magnetic snapping to data points
-  const snap = useSnapToData({ enabled: snapToDataEnabled });
+  const snap = useSnap(snapMode);
 
-  // Apply snapping to follower position for preview
-  const snappedFollowerPosition = React.useMemo(() => {
-    if (!followerPosition) return null;
-    return snap(followerPosition.x, followerPosition.y);
-    // return { x: snapped.x, y: snapped.y };
-  }, [followerPosition, snap]);
-
-  // Apply snapping to first click position
-  const snappedFirstClickPosition = React.useMemo(() => {
-    if (!firstClickPosition) return null;
-    return snap(firstClickPosition.x, firstClickPosition.y);
-    // return { x: snapped.x, y: snapped.y };
-  }, [firstClickPosition, snap]);
-
-  const handleBlanketClick = React.useCallback(
+  const handleBlanketClick = useCallback(
     (e: React.MouseEvent) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const snapped = snap(x, y);
-      onChartClick(snapped.x, snapped.y);
+      const snapped = snap(e);
+      if (snapped) {
+        onChartClick(snapped);
+      }
     },
     [onChartClick, snap],
   );
 
-  const handleBlanketMouseDown = React.useCallback(
+  const handleBlanketMouseDown = useCallback(
     (e: React.MouseEvent) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const snapped = snap(x, y);
-      onChartMouseDown(snapped.x, snapped.y);
+      const snapped = snap(e);
+      if (snapped) {
+        onChartMouseDown(snapped);
+      }
     },
     [onChartMouseDown, snap],
   );
 
-  const handleBlanketMouseUp = React.useCallback(
+  const handleBlanketMouseUp = useCallback(
     (e: React.MouseEvent) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const snapped = snap(x, y);
-      onChartMouseUp(snapped.x, snapped.y);
+      const snapped = snap(e);
+      if (snapped) {
+        onChartMouseUp(snapped);
+      }
     },
     [onChartMouseUp, snap],
   );
 
-  const handleBlanketMouseMove = React.useCallback(
+  const handleBlanketMouseMove = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      const chartCoords = getRelativeCoordinate(e);
-      console.log({ chartCoords });
-      // Note: We pass raw coordinates here; snapping is applied via snappedFollowerPosition
-      onChartMouseMove(chartCoords.chartX, chartCoords.chartY);
+      const snapped = snap(e);
+      if (snapped) {
+        onChartMouseMove(snapped);
+      }
     },
     [onChartMouseMove],
   );
 
   return (
-    <>
+    <ZIndexLayer zIndex={DefaultZIndexes.label - 1}>
       {/* Render the blanket for capturing events when adding annotations */}
       {isAdding && (
         <Blanket
@@ -281,6 +279,7 @@ export function RenderAnnotations({
           onMouseUp={handleBlanketMouseUp}
           onMouseMove={handleBlanketMouseMove}
           onMouseLeave={onChartMouseLeave}
+          onMouseEnter={handleBlanketMouseMove}
         />
       )}
 
@@ -292,15 +291,16 @@ export function RenderAnnotations({
         {annotations.map(renderAnnotation)}
       </g>
 
-      {/* Render the follower annotation preview with snapped coordinates */}
+      {/* Render the follower annotation preview with snapped Coordinates */}
       {isAdding &&
-        snappedFollowerPosition &&
+        followerPosition &&
         renderFollowerAnnotation(
           isAdding,
-          snappedFollowerPosition,
+          snapMode,
+          followerPosition,
           annotations.length,
-          snappedFirstClickPosition,
+          firstClickPosition,
         )}
-    </>
+    </ZIndexLayer>
   );
 }

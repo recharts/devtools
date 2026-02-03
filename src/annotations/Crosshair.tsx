@@ -15,34 +15,33 @@
  */
 import React from 'react';
 import { ReferenceLine } from 'recharts';
-import type { CrosshairAnnotation as CrosshairAnnotationType } from './types.js';
+import { Annotation, CrosshairAnnotation as CrosshairAnnotationType } from './types.js';
 
 interface CrosshairProps {
-  annotation: CrosshairAnnotationType;
+  annotation: Annotation;
   showLabels?: boolean;
 }
 
 export function Crosshair({ annotation, showLabels = false }: CrosshairProps) {
-  const { x, y, positionType, style, xAxisId = 0, yAxisId = 0 } = annotation;
+  const { pointA, positionType, style } = annotation;
   const { color = 'red', strokeWidth = 2, strokeDasharray = '4', opacity = 1 } = style;
 
   if (positionType === 'data') {
     // Use two ReferenceLines for data-based positioning
+    if (!pointA.dataPoint) {
+      return null;
+    }
     return (
       <>
         <ReferenceLine
-          x={x}
-          xAxisId={xAxisId}
-          yAxisId={yAxisId}
+          x={String(pointA.dataPoint.x)}
           stroke={color}
           strokeWidth={strokeWidth}
           strokeDasharray={strokeDasharray}
           strokeOpacity={opacity}
         />
         <ReferenceLine
-          y={y}
-          xAxisId={xAxisId}
-          yAxisId={yAxisId}
+          y={String(pointA.dataPoint.y)}
           stroke={color}
           strokeWidth={strokeWidth}
           strokeDasharray={strokeDasharray}
@@ -53,12 +52,8 @@ export function Crosshair({ annotation, showLabels = false }: CrosshairProps) {
   }
 
   // For pixel-based positioning, use raw SVG
-  const xPixel = typeof x === 'number' ? x : parseFloat(String(x));
-  const yPixel = typeof y === 'number' ? y : parseFloat(String(y));
-
-  if (Number.isNaN(xPixel) || Number.isNaN(yPixel)) {
-    return null;
-  }
+  const xPixel = pointA.interactionCoordinate.x;
+  const yPixel = pointA.interactionCoordinate.y;
 
   const coordinateText = `${xPixel.toFixed(1)}, ${yPixel.toFixed(1)}`;
   // Approximate text width calculation (roughly 6.5 pixels per character for 10px bold monospace)

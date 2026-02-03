@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { RECHARTS_ANNOTATIONS_PORTAL_ID, RECHARTS_DEVTOOLS_PORTAL_ID } from '../constants.js';
+import { RECHARTS_DEVTOOLS_PORTAL_ID } from '../constants.js';
 import { ChartDimensionInspector } from '../inspectors/ChartDimensionInspector.js';
 import { MarginInspector } from '../inspectors/MarginInspector.js';
 import { OffsetInspector } from '../inspectors/OffsetInspector.js';
@@ -12,7 +12,7 @@ import { ActiveTooltipLabelInspector } from '../inspectors/ActiveTooltipLabelIns
 import { InspectorDef } from '../types.js';
 import { useSessionStorageState } from '../hooks/useSessionStorageState.js';
 import { useRechartsDevtoolsContext } from '../context/RechartsDevtoolsContext.js';
-import { AnnotationsController, RenderAnnotations, useAnnotationsManager } from '../annotations';
+import { RechartsAnnotations } from './RechartsAnnotations';
 
 const INSPECTORS: Record<string, InspectorDef> = {
   'useChartWidth | useChartHeight': ChartDimensionInspector,
@@ -46,15 +46,8 @@ function useSelectedInspector() {
 export const RechartsDevtools = () => {
   const contextId = useRechartsDevtoolsContext();
   const portalId = contextId ?? RECHARTS_DEVTOOLS_PORTAL_ID;
-  const annotationsPortalId = contextId
-    ? `${contextId}-annotations`
-    : RECHARTS_ANNOTATIONS_PORTAL_ID;
   const { selectedInspectorId, setSelectedInspectorId, selectedInspector } = useSelectedInspector();
   const [container, setContainer] = React.useState<HTMLElement | null>(null);
-  const [annotationsContainer, setAnnotationsContainer] = React.useState<HTMLElement | null>(null);
-
-  // Annotations state management
-  const annotationsManager = useAnnotationsManager();
 
   React.useEffect(() => {
     const el = document.getElementById(portalId);
@@ -67,11 +60,6 @@ export const RechartsDevtools = () => {
     }
   }, [portalId, setSelectedInspectorId]);
 
-  React.useEffect(() => {
-    const el = document.getElementById(annotationsPortalId);
-    setAnnotationsContainer(el);
-  }, [annotationsPortalId]);
-
   const [isOverlayEnabled, setIsOverlayEnabled] = useSessionStorageState(
     'rechartsDevtoolsOverlayEnabled',
     false,
@@ -83,20 +71,6 @@ export const RechartsDevtools = () => {
     <>
       {/* Render inspector overlay if enabled */}
       {Overlay && isOverlayEnabled && <Overlay />}
-
-      {/* Render annotations overlay in the chart */}
-      <RenderAnnotations
-        annotations={annotationsManager.annotations}
-        isAdding={annotationsManager.isAdding}
-        followerPosition={annotationsManager.followerPosition}
-        firstClickPosition={annotationsManager.firstClickPosition}
-        snapToData={annotationsManager.snapToData}
-        onChartClick={annotationsManager.onChartClick}
-        onChartMouseDown={annotationsManager.onChartMouseDown}
-        onChartMouseUp={annotationsManager.onChartMouseUp}
-        onChartMouseMove={annotationsManager.onChartMouseMove}
-        onChartMouseLeave={annotationsManager.onChartMouseLeave}
-      />
 
       {/* Render devtools UI via portal */}
       {container &&
@@ -147,28 +121,7 @@ export const RechartsDevtools = () => {
           container,
         )}
 
-      {/* Render annotations controller UI via portal */}
-      {annotationsContainer &&
-        createPortal(
-          <div
-            className="recharts-annotations"
-            style={{ fontFamily: 'monospace', fontSize: '12px' }}
-          >
-            <AnnotationsController
-              annotations={annotationsManager.annotations}
-              isAdding={annotationsManager.isAdding}
-              selectedAnnotationId={annotationsManager.selectedAnnotationId}
-              snapToData={annotationsManager.snapToData}
-              onStartAdding={annotationsManager.startAddingAnnotation}
-              onCancelAdding={annotationsManager.cancelAddingAnnotation}
-              onDeleteAnnotation={annotationsManager.deleteAnnotation}
-              onUpdateAnnotation={annotationsManager.updateAnnotation}
-              onSelectAnnotation={annotationsManager.selectAnnotation}
-              onSnapToDataChange={annotationsManager.setSnapToData}
-            />
-          </div>,
-          annotationsContainer,
-        )}
+      <RechartsAnnotations />
     </>
   );
 };

@@ -8,51 +8,54 @@
  */
 import React from 'react';
 import { ReferenceArea, Rectangle } from 'recharts';
-import type { RectangleAnnotation as RectangleAnnotationType } from './types.js';
+import { Annotation, RectangleAnnotation as RectangleAnnotationType } from './types.js';
 
 interface RectangleAnnotationProps {
-  annotation: RectangleAnnotationType;
+  annotation: Annotation;
 }
 
 export function RectangleAnnotation({ annotation }: RectangleAnnotationProps) {
-  const { x1, x2, y1, y2, positionType, style, xAxisId = 0, yAxisId = 0, label } = annotation;
-  const { color = '#ccc', strokeWidth = 1, fill = '#ccc', opacity = 0.5, fillOpacity = 0.1, pointerEvents } = style;
+  const { pointA, pointB, positionType, label, style } = annotation;
+  const {
+    color = '#ccc',
+    strokeWidth = 1,
+    fill = '#ccc',
+    opacity = 0.5,
+    fillOpacity = 0.1,
+    pointerEvents,
+  } = style;
+
+  if (!pointB) {
+    return null;
+  }
 
   if (positionType === 'data') {
     // Use ReferenceArea for data-based positioning
+    if (!pointA.dataPoint || !pointB.dataPoint) {
+      return null;
+    }
     return (
       <ReferenceArea
-        x1={x1}
-        x2={x2}
-        y1={y1}
-        y2={y2}
-        xAxisId={xAxisId}
-        yAxisId={yAxisId}
+        x1={String(pointA.dataPoint.x)}
+        x2={String(pointB.dataPoint.x)}
+        y1={String(pointA.dataPoint.y)}
+        y2={String(pointB.dataPoint.y)}
         stroke={color}
         strokeWidth={strokeWidth}
+        strokeOpacity={opacity}
         fill={fill}
         fillOpacity={fillOpacity}
         style={{ pointerEvents }}
-        label={label?.text}
+        label={label}
       />
     );
   }
 
   // For pixel-based positioning, use Rectangle component
-  const x1Pixel = typeof x1 === 'number' ? x1 : parseFloat(String(x1));
-  const x2Pixel = typeof x2 === 'number' ? x2 : parseFloat(String(x2));
-  const y1Pixel = typeof y1 === 'number' ? y1 : parseFloat(String(y1));
-  const y2Pixel = typeof y2 === 'number' ? y2 : parseFloat(String(y2));
-
-  if (
-    Number.isNaN(x1Pixel) ||
-    Number.isNaN(x2Pixel) ||
-    Number.isNaN(y1Pixel) ||
-    Number.isNaN(y2Pixel)
-  ) {
-    console.log('RectangleAnnotation: Invalid pixel coordinates', { x1, x2, y1, y2 });
-    return null;
-  }
+  const x1Pixel = pointA.interactionCoordinate.x;
+  const x2Pixel = pointB.interactionCoordinate.x;
+  const y1Pixel = pointA.interactionCoordinate.y;
+  const y2Pixel = pointB.interactionCoordinate.y;
 
   const x = Math.min(x1Pixel, x2Pixel);
   const y = Math.min(y1Pixel, y2Pixel);
@@ -82,7 +85,7 @@ export function RectangleAnnotation({ annotation }: RectangleAnnotationProps) {
           dominantBaseline="middle"
           pointerEvents="none"
         >
-          {label.text}
+          {label.value}
         </text>
       )}
     </g>

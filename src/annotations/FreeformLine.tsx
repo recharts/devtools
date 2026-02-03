@@ -8,44 +8,45 @@
  */
 import React from 'react';
 import { ReferenceLine } from 'recharts';
-import type { FreeformLineAnnotation as FreeformLineAnnotationType } from './types.js';
+import { Annotation } from './types.js';
 
 interface FreeformLineProps {
-  annotation: FreeformLineAnnotationType;
+  annotation: Annotation;
 }
 
 export function FreeformLine({ annotation }: FreeformLineProps) {
-  const { x1, y1, x2, y2, positionType, style, xAxisId = 0, yAxisId = 0, label } = annotation;
+  const { pointA, pointB, positionType, style, label } = annotation;
   const { color = '#ccc', strokeWidth = 1, strokeDasharray, opacity = 1 } = style;
+
+  if (!pointB) {
+    return null;
+  }
 
   if (positionType === 'data') {
     // Use ReferenceLine with segment prop for data-based positioning
+    if (!pointA.dataPoint || !pointB.dataPoint) {
+      return null;
+    }
     return (
       <ReferenceLine
         segment={[
-          { x: x1, y: y1 },
-          { x: x2, y: y2 },
+          { x: String(pointA.dataPoint.x), y: String(pointA.dataPoint.y) },
+          { x: String(pointB.dataPoint.x), y: String(pointB.dataPoint.y) },
         ]}
-        xAxisId={xAxisId}
-        yAxisId={yAxisId}
         stroke={color}
         strokeWidth={strokeWidth}
         strokeDasharray={strokeDasharray}
         strokeOpacity={opacity}
-        label={label?.text}
+        label={label}
       />
     );
   }
 
   // For pixel-based positioning, use raw SVG line
-  const x1Pixel = typeof x1 === 'number' ? x1 : parseFloat(String(x1));
-  const y1Pixel = typeof y1 === 'number' ? y1 : parseFloat(String(y1));
-  const x2Pixel = typeof x2 === 'number' ? x2 : parseFloat(String(x2));
-  const y2Pixel = typeof y2 === 'number' ? y2 : parseFloat(String(y2));
-
-  if (Number.isNaN(x1Pixel) || Number.isNaN(y1Pixel) || Number.isNaN(x2Pixel) || Number.isNaN(y2Pixel)) {
-    return null;
-  }
+  const x1Pixel = pointA.interactionCoordinate.x;
+  const y1Pixel = pointA.interactionCoordinate.y;
+  const x2Pixel = pointB.interactionCoordinate.x;
+  const y2Pixel = pointB.interactionCoordinate.y;
 
   return (
     <g>
@@ -70,7 +71,7 @@ export function FreeformLine({ annotation }: FreeformLineProps) {
           textAnchor="middle"
           pointerEvents="none"
         >
-          {label.text}
+          {label.value}
         </text>
       )}
     </g>

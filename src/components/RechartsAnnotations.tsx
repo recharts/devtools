@@ -42,7 +42,7 @@ export const RechartsAnnotations = () => {
         isAdding={annotationsManager.isAdding}
         followerPosition={annotationsManager.followerPosition}
         firstClickPosition={annotationsManager.firstClickPosition}
-        snapToData={annotationsManager.snapToData}
+        snapMode={annotationsManager.snapMode}
         onChartClick={annotationsManager.onChartClick}
         onChartMouseDown={annotationsManager.onChartMouseDown}
         onChartMouseUp={annotationsManager.onChartMouseUp}
@@ -61,13 +61,13 @@ export const RechartsAnnotations = () => {
               annotations={annotationsManager.annotations}
               isAdding={annotationsManager.isAdding}
               selectedAnnotationId={annotationsManager.selectedAnnotationId}
-              snapToData={annotationsManager.snapToData}
+              snapMode={annotationsManager.snapMode}
               onStartAdding={annotationsManager.startAddingAnnotation}
               onCancelAdding={annotationsManager.cancelAddingAnnotation}
               onDeleteAnnotation={annotationsManager.deleteAnnotation}
               onUpdateAnnotation={annotationsManager.updateAnnotation}
               onSelectAnnotation={annotationsManager.selectAnnotation}
-              onSnapToDataChange={annotationsManager.setSnapToData}
+              onSnapModeChange={annotationsManager.setSnapMode}
             />
           </div>,
           container,

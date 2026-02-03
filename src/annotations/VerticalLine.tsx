@@ -8,38 +8,32 @@
  */
 import React from 'react';
 import { ReferenceLine } from 'recharts';
-import type { VerticalLineAnnotation } from './types.js';
+import { Annotation } from './types.js';
 
 interface VerticalLineProps {
-  annotation: VerticalLineAnnotation;
+  annotation: Annotation;
 }
 
 export function VerticalLine({ annotation }: VerticalLineProps) {
-  const { x, positionType, style, xAxisId = 0, yAxisId = 0, label } = annotation;
+  const { pointA, positionType, label, style } = annotation;
   const { color = '#ccc', strokeWidth = 1, strokeDasharray, opacity = 1 } = style;
 
   if (positionType === 'data') {
     // Use ReferenceLine for data-based positioning
     return (
       <ReferenceLine
-        x={x}
-        xAxisId={xAxisId}
-        yAxisId={yAxisId}
+        x={String(pointA.dataPoint?.x)}
         stroke={color}
         strokeWidth={strokeWidth}
         strokeDasharray={strokeDasharray}
         strokeOpacity={opacity}
-        label={label?.text}
+        label={label}
       />
     );
   }
 
   // For pixel-based positioning, use raw SVG line
-  // Note: x must be a number for pixel positioning
-  const xPixel = typeof x === 'number' ? x : parseFloat(String(x));
-  if (Number.isNaN(xPixel)) {
-    return null;
-  }
+  const xPixel = pointA.interactionCoordinate.x;
 
   return (
     <g>
@@ -63,7 +57,7 @@ export function VerticalLine({ annotation }: VerticalLineProps) {
           fontWeight={label.style?.fontWeight ?? 'normal'}
           pointerEvents="none"
         >
-          {label.text}
+          {label.value}
         </text>
       )}
     </g>

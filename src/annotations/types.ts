@@ -1,3 +1,7 @@
+import { CSSProperties } from 'react';
+import { SnapResult } from './useSnap';
+import { LabelProps } from 'recharts';
+
 /**
  * Common style properties for annotations.
  */
@@ -8,7 +12,7 @@ export interface AnnotationStyle {
   fill?: string;
   opacity?: number;
   fillOpacity?: number;
-  pointerEvents?: React.CSSProperties['pointerEvents'];
+  pointerEvents?: CSSProperties['pointerEvents'];
 }
 
 /**
@@ -17,29 +21,6 @@ export interface AnnotationStyle {
  * When using pixel values, the annotation will use raw SVG elements.
  */
 export type PositionType = 'pixel' | 'data';
-
-/**
- * Base annotation properties shared by all annotation types.
- */
-export interface BaseAnnotation {
-  id: number;
-  positionType: PositionType;
-  style: AnnotationStyle;
-  label?: LabelConfig;
-}
-
-/**
- * Label configuration for annotations.
- */
-export interface LabelConfig {
-  text: string;
-  position?: 'top' | 'bottom' | 'left' | 'right' | 'center' | 'insideTop' | 'insideBottom';
-  style?: {
-    fontSize?: number;
-    fontWeight?: 'normal' | 'bold';
-    fill?: string;
-  };
-}
 
 /**
  * Horizontal line annotation.
@@ -164,16 +145,26 @@ export interface CrosshairAnnotation extends BaseAnnotation {
 /**
  * Union type of all annotation types.
  */
-export type Annotation =
-  | HorizontalLineAnnotation
-  | VerticalLineAnnotation
-  | CircleAnnotation
-  | RectangleAnnotation
-  | LabelAnnotation
-  | FreeformLineAnnotation
-  | CrosshairAnnotation;
+export type Annotation = {
+  id: number;
+  type:
+    | 'horizontalLine'
+    | 'verticalLine'
+    | 'circle'
+    | 'rectangle'
+    | 'label'
+    | 'freeformLine'
+    | 'crosshair';
+  positionType: PositionType;
+  pointA: SnapResult;
+  pointB?: SnapResult;
+  label: LabelProps | undefined;
+  style: AnnotationStyle;
+};
 
 /**
  * Type guard for annotation types.
  */
 export type AnnotationType = Annotation['type'];
+
+export type SnapMode = 'none' | 'data' | 'tick';

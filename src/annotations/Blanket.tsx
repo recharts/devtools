@@ -1,5 +1,4 @@
 import React from 'react';
-import { DefaultZIndexes, ZIndexLayer } from 'recharts';
 
 export interface BlanketProps {
   onClick?: (e: React.MouseEvent) => void;
@@ -7,6 +6,7 @@ export interface BlanketProps {
   onMouseLeave?: (e: React.MouseEvent) => void;
   onMouseDown?: (e: React.MouseEvent) => void;
   onMouseUp?: (e: React.MouseEvent) => void;
+  onMouseEnter?: (e: React.MouseEvent) => void;
   pointerEvents?: 'none' | 'auto';
   /**
    * Optional fill color. Defaults to transparent.
@@ -36,11 +36,12 @@ export const Blanket = React.memo(function Blanket({
   onMouseLeave,
   onMouseDown,
   onMouseUp,
+  onMouseEnter,
   pointerEvents = 'none',
   fill = 'transparent',
 }: BlanketProps) {
   return (
-    <ZIndexLayer zIndex={DefaultZIndexes.label - 1}>
+    <>
       <rect
         x={0}
         y={0}
@@ -53,7 +54,8 @@ export const Blanket = React.memo(function Blanket({
         onMouseLeave={onMouseLeave}
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
+        onMouseEnter={onMouseEnter}
       />
-    </ZIndexLayer>
+    </>
   );
 });

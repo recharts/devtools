@@ -17,7 +17,7 @@
  * in an HTML context (not SVG).
  */
 import React, { useState } from 'react';
-import type { Annotation, AnnotationType, AnnotationStyle } from './types.js';
+import type { Annotation, AnnotationType, AnnotationStyle, SnapMode } from './types.js';
 
 const ANNOTATION_TYPES: { type: AnnotationType; label: string }[] = [
   { type: 'horizontalLine', label: 'Horizontal Line' },
@@ -33,13 +33,13 @@ interface AnnotationsControllerProps {
   annotations: Annotation[];
   isAdding: AnnotationType | null;
   selectedAnnotationId: number | null;
-  snapToData: boolean;
+  snapMode: SnapMode;
   onStartAdding: (type: AnnotationType) => void;
   onCancelAdding: () => void;
   onDeleteAnnotation: (id: number) => void;
   onUpdateAnnotation: (annotation: Annotation) => void;
   onSelectAnnotation: (id: number | null) => void;
-  onSnapToDataChange: (enabled: boolean) => void;
+  onSnapModeChange: (newSnapMode: SnapMode) => void;
 }
 
 const buttonStyle: React.CSSProperties = {
@@ -68,8 +68,57 @@ const inputStyle: React.CSSProperties = {
 const labelStyle: React.CSSProperties = {
   fontSize: '11px',
   minWidth: '40px',
-  display: 'inline-block',
+  display: 'inline-flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: '1ex',
+  marginRight: '2ex',
 };
+
+function SnapModeRadioGroup({
+  snapMode,
+  onSnapModeChange,
+}: {
+  snapMode: SnapMode;
+  onSnapModeChange: (newSnapMode: SnapMode) => void;
+}) {
+  console.log('SnapModeRadioGroup render', { snapMode });
+  return (
+    <div style={{ marginBottom: '12px' }}>
+      <div style={{ marginBottom: '6px', fontWeight: 'bold' }}>Snap to Data:</div>
+      <label style={labelStyle}>
+        <input
+          type="radio"
+          name="snapMode"
+          value="none"
+          checked={snapMode === 'none'}
+          onChange={() => onSnapModeChange('none')}
+        />
+        No snapping
+      </label>
+      <label style={labelStyle}>
+        <input
+          type="radio"
+          name="snapMode"
+          value="x"
+          checked={snapMode === 'data'}
+          onChange={() => onSnapModeChange('data')}
+        />
+        Snap to data points
+      </label>
+      <label style={labelStyle}>
+        <input
+          type="radio"
+          name="snapMode"
+          value="y"
+          checked={snapMode === 'tick'}
+          onChange={() => onSnapModeChange('tick')}
+        />
+        Snap to axis ticks
+      </label>
+    </div>
+  );
+}
 
 /**
  * Renders controls for adding, editing, and removing annotations.
@@ -81,13 +130,13 @@ export function AnnotationsController({
   annotations,
   isAdding,
   selectedAnnotationId,
-  snapToData,
+  snapMode,
   onStartAdding,
   onCancelAdding,
   onDeleteAnnotation,
   onUpdateAnnotation,
   onSelectAnnotation,
-  onSnapToDataChange,
+  onSnapModeChange,
 }: AnnotationsControllerProps) {
   const [expandedAnnotationId, setExpandedAnnotationId] = useState<number | null>(null);
 
@@ -145,20 +194,7 @@ export function AnnotationsController({
         )}
       </div>
 
-      {/* Snap to data checkbox */}
-      <div style={{ marginBottom: '12px', paddingBottom: '12px', borderBottom: '1px solid #ddd' }}>
-        <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <input
-            type="checkbox"
-            checked={snapToData}
-            onChange={(e) => onSnapToDataChange(e.target.checked)}
-          />
-          <span style={{ fontSize: '11px' }}>Snap to data points</span>
-        </label>
-        <div style={{ fontSize: '10px', color: '#888', marginTop: '4px', marginLeft: '20px' }}>
-          When enabled, annotations will snap to the nearest X/Y data point
-        </div>
-      </div>
+      <SnapModeRadioGroup snapMode={snapMode} onSnapModeChange={onSnapModeChange} />
 
       {/* Annotations list */}
       <div>
@@ -437,11 +473,11 @@ export function AnnotationsController({
                           Text:
                           <input
                             type="text"
-                            value={annotation.text}
+                            value={String(annotation.label?.value ?? '')}
                             onChange={(e) =>
                               onUpdateAnnotation({
                                 ...annotation,
-                                text: e.target.value,
+                                label: { ...annotation.label, value: e.target.value },
                               })
                             }
                             style={{ ...inputStyle, width: '150px' }}

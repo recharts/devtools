@@ -8,41 +8,53 @@
  */
 import React from 'react';
 import { ReferenceDot, Dot } from 'recharts';
-import type { CircleAnnotation as CircleAnnotationType } from './types.js';
+import { Annotation, CircleAnnotation as CircleAnnotationType } from './types.js';
+import { getDistance } from './getDistance';
 
 interface CircleAnnotationProps {
-  annotation: CircleAnnotationType;
+  annotation: Annotation;
 }
 
 export function CircleAnnotation({ annotation }: CircleAnnotationProps) {
-  const { x, y, r, positionType, style, xAxisId = 0, yAxisId = 0, label } = annotation;
-  const { color = '#ccc', strokeWidth = 1, fill = '#fff', opacity = 1, fillOpacity = 0.1, pointerEvents } = style;
+  const { pointA, pointB, positionType, label, style } = annotation;
+  const {
+    color = '#ccc',
+    strokeWidth = 1,
+    fill = '#fff',
+    opacity = 1,
+    fillOpacity = 0.1,
+    pointerEvents,
+  } = style;
+
+  if (!pointB) {
+    return null;
+  }
+  const r = getDistance(pointA, pointB);
 
   if (positionType === 'data') {
     // Use ReferenceDot for data-based positioning
+    if (!pointA.dataPoint || !pointB) {
+      return null;
+    }
     return (
       <ReferenceDot
-        x={x}
-        y={y}
+        x={String(pointA.dataPoint.x)}
+        y={String(pointA.dataPoint.y)}
         r={r}
-        xAxisId={xAxisId}
-        yAxisId={yAxisId}
         stroke={color}
         strokeWidth={strokeWidth}
+        strokeOpacity={opacity}
         fill={fill}
         fillOpacity={fillOpacity}
         style={{ pointerEvents }}
-        label={label?.text}
+        label={label}
       />
     );
   }
 
   // For pixel-based positioning, use Dot component
-  const xPixel = typeof x === 'number' ? x : parseFloat(String(x));
-  const yPixel = typeof y === 'number' ? y : parseFloat(String(y));
-  if (Number.isNaN(xPixel) || Number.isNaN(yPixel)) {
-    return null;
-  }
+  const xPixel = pointA.interactionCoordinate.x;
+  const yPixel = pointA.interactionCoordinate.y;
 
   return (
     <g style={{ pointerEvents }}>
@@ -64,7 +76,7 @@ export function CircleAnnotation({ annotation }: CircleAnnotationProps) {
           fontWeight={label.style?.fontWeight ?? 'normal'}
           pointerEvents="none"
         >
-          {label.text}
+          {label.value}
         </text>
       )}
     </g>

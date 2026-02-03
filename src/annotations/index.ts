@@ -3,8 +3,6 @@ export type {
   Annotation,
   AnnotationType,
   AnnotationStyle,
-  BaseAnnotation,
-  LabelConfig,
   PositionType,
   HorizontalLineAnnotation,
   VerticalLineAnnotation,
@@ -28,8 +26,8 @@ export type {
   UseAnnotationsManagerProps,
   UseAnnotationsManagerReturn,
 } from './useAnnotationsManager.js';
-export { useSnapToData } from './useSnapToData.js';
-export type { SnapToDataOptions, SnapResult } from './useSnapToData.js';
+export { useSnap } from './useSnap';
+export type { SnapResult } from './useSnap';
 
 // Components - SVG annotations (render inside chart)
 export { Blanket } from './Blanket.js';

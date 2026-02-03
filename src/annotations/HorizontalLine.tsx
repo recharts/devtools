@@ -8,38 +8,34 @@
  */
 import React from 'react';
 import { ReferenceLine } from 'recharts';
-import type { HorizontalLineAnnotation } from './types.js';
+import { Annotation, HorizontalLineAnnotation } from './types.js';
 
 interface HorizontalLineProps {
-  annotation: HorizontalLineAnnotation;
+  annotation: Annotation;
 }
 
 export function HorizontalLine({ annotation }: HorizontalLineProps) {
-  const { y, positionType, style, xAxisId = 0, yAxisId = 0, label } = annotation;
+  const { pointA, positionType, label, style } = annotation;
   const { color = '#ccc', strokeWidth = 1, strokeDasharray, opacity = 1 } = style;
 
   if (positionType === 'data') {
     // Use ReferenceLine for data-based positioning
     return (
       <ReferenceLine
-        y={y}
-        xAxisId={xAxisId}
-        yAxisId={yAxisId}
+        y={String(pointA.dataPoint?.y)}
         stroke={color}
         strokeWidth={strokeWidth}
         strokeDasharray={strokeDasharray}
         strokeOpacity={opacity}
-        label={label?.text}
+        label={label}
+        tabIndex={-1}
+        focusable={false}
       />
     );
   }
 
   // For pixel-based positioning, use raw SVG line
-  // Note: y must be a number for pixel positioning
-  const yPixel = typeof y === 'number' ? y : parseFloat(String(y));
-  if (Number.isNaN(yPixel)) {
-    return null;
-  }
+  const yPixel = pointA.interactionCoordinate.y;
 
   return (
     <g>
@@ -53,6 +49,8 @@ export function HorizontalLine({ annotation }: HorizontalLineProps) {
         strokeDasharray={strokeDasharray}
         opacity={opacity}
         pointerEvents="none"
+        tabIndex={-1}
+        focusable={false}
       />
       {label && (
         <text
@@ -63,7 +61,7 @@ export function HorizontalLine({ annotation }: HorizontalLineProps) {
           fontWeight={label.style?.fontWeight ?? 'normal'}
           pointerEvents="none"
         >
-          {label.text}
+          {label.value}
         </text>
       )}
     </g>
