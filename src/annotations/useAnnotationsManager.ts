@@ -114,7 +114,6 @@ export const useAnnotationsManager = (
   const [followerPosition, setFollowerPosition] = useState<SnapResult | null>(null);
   const [selectedAnnotationId, setSelectedAnnotationId] = useState<number | null>(null);
   const [snapMode, setSnapMode] = useState<SnapMode>('none');
-  console.log('useAnnotationsManager render', { snapMode });
   // Track click positions for multi-click annotations (rectangle, freeform line)
   const [firstClickPosition, setFirstClickPosition] = useState<SnapResult | null>(null);
 

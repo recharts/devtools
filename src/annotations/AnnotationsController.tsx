@@ -16,7 +16,7 @@
  * This controller is meant to be rendered outside the chart area, typically in a sidebar or modal,
  * in an HTML context (not SVG).
  */
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import type { Annotation, AnnotationType, AnnotationStyle, SnapMode } from './types.js';
 
 const ANNOTATION_TYPES: { type: AnnotationType; label: string }[] = [
@@ -82,14 +82,15 @@ function SnapModeRadioGroup({
   snapMode: SnapMode;
   onSnapModeChange: (newSnapMode: SnapMode) => void;
 }) {
-  console.log('SnapModeRadioGroup render', { snapMode });
+  const name = useId();
+
   return (
     <div style={{ marginBottom: '12px' }}>
       <div style={{ marginBottom: '6px', fontWeight: 'bold' }}>Snap to Data:</div>
       <label style={labelStyle}>
         <input
           type="radio"
-          name="snapMode"
+          name={name}
           value="none"
           checked={snapMode === 'none'}
           onChange={() => onSnapModeChange('none')}
@@ -99,8 +100,8 @@ function SnapModeRadioGroup({
       <label style={labelStyle}>
         <input
           type="radio"
-          name="snapMode"
-          value="x"
+          name={name}
+          value="data"
           checked={snapMode === 'data'}
           onChange={() => onSnapModeChange('data')}
         />
@@ -109,8 +110,8 @@ function SnapModeRadioGroup({
       <label style={labelStyle}>
         <input
           type="radio"
-          name="snapMode"
-          value="y"
+          name={name}
+          value="tick"
           checked={snapMode === 'tick'}
           onChange={() => onSnapModeChange('tick')}
         />
