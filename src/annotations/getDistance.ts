@@ -1,4 +1,4 @@
-import { SnapResult } from './useSnap.js';
+import type { SnapResult } from './useSnap.js';
 
 export function getDistance(a: SnapResult, b: SnapResult): number {
   return Math.sqrt(
