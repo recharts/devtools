@@ -117,7 +117,7 @@ export function RenderAnnotations({
   const snap = useSnap(snapMode);
 
   const handleBlanketClick = useCallback(
-    (e: React.MouseEvent) => {
+    (e: React.MouseEvent<SVGGraphicsElement>) => {
       const snapped = snap(e);
       if (snapped) {
         onChartClick(snapped);
@@ -127,7 +127,7 @@ export function RenderAnnotations({
   );
 
   const handleBlanketMouseDown = useCallback(
-    (e: React.MouseEvent) => {
+    (e: React.MouseEvent<SVGGraphicsElement>) => {
       const snapped = snap(e);
       if (snapped) {
         onChartMouseDown(snapped);
@@ -137,7 +137,7 @@ export function RenderAnnotations({
   );
 
   const handleBlanketMouseUp = useCallback(
-    (e: React.MouseEvent) => {
+    (e: React.MouseEvent<SVGGraphicsElement>) => {
       const snapped = snap(e);
       if (snapped) {
         onChartMouseUp(snapped);
@@ -147,7 +147,7 @@ export function RenderAnnotations({
   );
 
   const handleBlanketMouseMove = useCallback(
-    (e: React.MouseEvent) => {
+    (e: React.MouseEvent<SVGGraphicsElement>) => {
       e.preventDefault();
       e.stopPropagation();
       const snapped = snap(e);
@@ -155,7 +155,7 @@ export function RenderAnnotations({
         onChartMouseMove(snapped);
       }
     },
-    [onChartMouseMove],
+    [onChartMouseMove, snap],
   );
 
   return (

@@ -1,12 +1,12 @@
 import React from 'react';
 
 export interface BlanketProps {
-  onClick?: (e: React.MouseEvent) => void;
-  onMouseMove?: (e: React.MouseEvent) => void;
-  onMouseLeave?: (e: React.MouseEvent) => void;
-  onMouseDown?: (e: React.MouseEvent) => void;
-  onMouseUp?: (e: React.MouseEvent) => void;
-  onMouseEnter?: (e: React.MouseEvent) => void;
+  onClick?: (e: React.MouseEvent<SVGGraphicsElement>) => void;
+  onMouseMove?: (e: React.MouseEvent<SVGGraphicsElement>) => void;
+  onMouseLeave?: (e: React.MouseEvent<SVGGraphicsElement>) => void;
+  onMouseDown?: (e: React.MouseEvent<SVGGraphicsElement>) => void;
+  onMouseUp?: (e: React.MouseEvent<SVGGraphicsElement>) => void;
+  onMouseEnter?: (e: React.MouseEvent<SVGGraphicsElement>) => void;
   pointerEvents?: 'none' | 'auto';
   /**
    * Optional fill color. Defaults to transparent.
