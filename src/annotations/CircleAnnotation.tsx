@@ -1,0 +1,84 @@
+/**
+ * This annotation allows drawing a circle on a chart.
+ *
+ * It accepts either pixel coordinates or data values for positioning.
+ *
+ * In case it receives pixel coordinates, it uses a Dot component.
+ * If data values are provided, it uses a ReferenceDot component.
+ */
+import React from 'react';
+import { Dot, ReferenceDot } from 'recharts';
+import { Annotation } from './types.js';
+import { getDistance } from './getDistance.js';
+
+interface CircleAnnotationProps {
+  annotation: Annotation;
+}
+
+export function CircleAnnotation({ annotation }: CircleAnnotationProps) {
+  const { pointA, pointB, positionType, label, style } = annotation;
+  const {
+    color = '#ccc',
+    strokeWidth = 1,
+    fill = '#fff',
+    opacity = 1,
+    fillOpacity = 0.1,
+    pointerEvents,
+  } = style;
+
+  if (!pointB) {
+    return null;
+  }
+  const r = getDistance(pointA, pointB);
+
+  if (positionType === 'data') {
+    // Use ReferenceDot for data-based positioning
+    if (!pointA.dataPoint) {
+      return null;
+    }
+    return (
+      <ReferenceDot
+        x={String(pointA.dataPoint.x)}
+        y={String(pointA.dataPoint.y)}
+        r={r}
+        stroke={color}
+        strokeWidth={strokeWidth}
+        strokeOpacity={opacity}
+        fill={fill}
+        fillOpacity={fillOpacity}
+        style={{ pointerEvents }}
+        label={label}
+      />
+    );
+  }
+
+  // For pixel-based positioning, use Dot component
+  const xPixel = pointA.interactionCoordinate.x;
+  const yPixel = pointA.interactionCoordinate.y;
+
+  return (
+    <g style={{ pointerEvents }}>
+      <Dot
+        cx={xPixel}
+        cy={yPixel}
+        r={r}
+        stroke={color}
+        strokeWidth={strokeWidth}
+        fill={fill}
+        fillOpacity={fillOpacity}
+      />
+      {label && (
+        <text
+          x={xPixel + r + 5}
+          y={yPixel + 4}
+          fill={label.style?.fill ?? color}
+          fontSize={label.style?.fontSize ?? 10}
+          fontWeight={label.style?.fontWeight ?? 'normal'}
+          pointerEvents="none"
+        >
+          {label.value}
+        </text>
+      )}
+    </g>
+  );
+}

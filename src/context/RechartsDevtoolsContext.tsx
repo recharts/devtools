@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useId } from 'react';
-import { RECHARTS_DEVTOOLS_PORTAL_ID } from '../constants.js';
+import { RECHARTS_DEVTOOLS_PORTAL_ID, RECHARTS_ANNOTATIONS_PORTAL_ID } from '../constants.js';
 import { InspectorKey } from '../components/RechartsDevtools.js';
 
 const Context = createContext<string | null>(null);
@@ -29,4 +29,15 @@ export const RechartsDevtoolsPortal: React.FC<
   const id = contextId ?? RECHARTS_DEVTOOLS_PORTAL_ID;
 
   return <div id={id} data-initial-tab={initialTab} {...props} />;
+};
+
+/**
+ * Portal container for annotations UI.
+ * Place this component where you want the annotations controller to render.
+ */
+export const RechartsAnnotationsPortal: React.FC<React.HTMLAttributes<HTMLDivElement>> = (props) => {
+  const contextId = useRechartsDevtoolsContext();
+  const id = contextId ? `${contextId}-annotations` : RECHARTS_ANNOTATIONS_PORTAL_ID;
+
+  return <div id={id} {...props} />;
 };
