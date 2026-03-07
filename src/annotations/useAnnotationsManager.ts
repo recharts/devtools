@@ -203,7 +203,7 @@ export const useAnnotationsManager = (
         }
       }
     },
-    [isAdding, firstClickPosition, createAnnotation, props],
+    [isAdding, firstClickPosition, createAnnotation, props, snapMode],
   );
 
   const onChartClick = useCallback(
