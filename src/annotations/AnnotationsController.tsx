@@ -349,7 +349,7 @@ function AnnotationEditForm({
       </div>
 
       {/* Label for label annotation */}
-      {'text' in annotation && (
+      {annotation.type === 'label' && (
         <div style={{ marginTop: '8px' }}>
           <label style={labelStyle}>
             Text:
