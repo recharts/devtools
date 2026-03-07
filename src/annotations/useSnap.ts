@@ -161,6 +161,8 @@ export function useSnap(
       yInverseDataSnapScale,
       xInverseTickSnapScale,
       yInverseTickSnapScale,
+      scaleX,
+      scaleY,
     ],
   );
 }
