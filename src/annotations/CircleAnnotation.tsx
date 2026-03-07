@@ -33,7 +33,7 @@ export function CircleAnnotation({ annotation }: CircleAnnotationProps) {
 
   if (positionType === 'data') {
     // Use ReferenceDot for data-based positioning
-    if (!pointA.dataPoint || !pointB) {
+    if (!pointA.dataPoint) {
       return null;
     }
     return (
