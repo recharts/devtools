@@ -65,7 +65,8 @@ export const RechartsDevtools = () => {
     false,
   );
 
-  const { Inspector, Overlay } = selectedInspector ?? {};
+  const Inspector = selectedInspector?.Inspector;
+  const Overlay = selectedInspector?.Overlay;
 
   return (
     <>
