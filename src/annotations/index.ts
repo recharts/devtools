@@ -14,8 +14,8 @@ export type {
   UseAnnotationsManagerProps,
   UseAnnotationsManagerReturn,
 } from './useAnnotationsManager.js';
-export { useSnap } from './useSnap';
-export type { SnapResult } from './useSnap';
+export { useSnap } from './useSnap.js';
+export type { SnapResult } from './useSnap.js';
 
 // Components - SVG annotations (render inside chart)
 export { Blanket } from './Blanket.js';

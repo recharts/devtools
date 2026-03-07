@@ -1,5 +1,5 @@
 import { CSSProperties } from 'react';
-import { SnapResult } from './useSnap';
+import { SnapResult } from './useSnap.js';
 import { LabelProps } from 'recharts';
 
 /**

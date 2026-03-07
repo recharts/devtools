@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
 import type { Annotation, AnnotationStyle, AnnotationType, SnapMode } from './types.js';
 import { DEFAULT_ANNOTATION_STYLE, getAnnotationColor } from './annotationColors.js';
-import { SnapResult } from './useSnap';
-import { getDistance } from './getDistance';
+import { SnapResult } from './useSnap.js';
+import { getDistance } from './getDistance.js';
 
 export interface UseAnnotationsManagerProps {
   onAnnotationAdd?: (annotation: Annotation) => void;

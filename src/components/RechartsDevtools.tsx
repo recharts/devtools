@@ -12,7 +12,7 @@ import { ActiveTooltipLabelInspector } from '../inspectors/ActiveTooltipLabelIns
 import { InspectorDef } from '../types.js';
 import { useSessionStorageState } from '../hooks/useSessionStorageState.js';
 import { useRechartsDevtoolsContext } from '../context/RechartsDevtoolsContext.js';
-import { RechartsAnnotations } from './RechartsAnnotations';
+import { RechartsAnnotations } from './RechartsAnnotations.js';
 
 const INSPECTORS: Record<string, InspectorDef> = {
   'useChartWidth | useChartHeight': ChartDimensionInspector,

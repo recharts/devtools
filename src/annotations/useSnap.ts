@@ -23,7 +23,7 @@ import {
   useXAxisScale,
   useYAxisScale,
 } from 'recharts';
-import { SnapMode } from './types';
+import { SnapMode } from './types.js';
 
 export interface SnapResult {
   // Where the user interacted (pixel coordinates) relative to chart area

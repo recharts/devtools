@@ -17,7 +17,7 @@ import { LabelAnnotation } from './LabelAnnotation.js';
 import { FreeformLine } from './FreeformLine.js';
 import { Crosshair } from './Crosshair.js';
 import { getAnnotationColor } from './annotationColors.js';
-import { SnapResult, useSnap } from './useSnap';
+import { SnapResult, useSnap } from './useSnap.js';
 import { DefaultZIndexes, ZIndexLayer } from 'recharts';
 
 interface RenderAnnotationsProps {

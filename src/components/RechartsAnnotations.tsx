@@ -19,7 +19,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { RECHARTS_ANNOTATIONS_PORTAL_ID } from '../constants.js';
 import { useRechartsDevtoolsContext } from '../context/RechartsDevtoolsContext.js';
-import { AnnotationsController, RenderAnnotations, useAnnotationsManager } from '../annotations';
+import { AnnotationsController, RenderAnnotations, useAnnotationsManager } from '../annotations/index.js';
 
 export const RechartsAnnotations = () => {
   const contextId = useRechartsDevtoolsContext();

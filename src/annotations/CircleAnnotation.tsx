@@ -9,7 +9,7 @@
 import React from 'react';
 import { Dot, ReferenceDot } from 'recharts';
 import { Annotation } from './types.js';
-import { getDistance } from './getDistance';
+import { getDistance } from './getDistance.js';
 
 interface CircleAnnotationProps {
   annotation: Annotation;
