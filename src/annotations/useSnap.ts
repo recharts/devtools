@@ -98,19 +98,15 @@ export function useSnap(
       const interactionCoordinate = getRelativeCoordinate(e);
       let snappedDataPoint: { x: unknown; y: unknown } | undefined = undefined;
       if (snapMode === 'data') {
-        {
-          snappedDataPoint = {
-            x: xInverseDataSnapScale(interactionCoordinate.relativeX),
-            y: yInverseDataSnapScale(interactionCoordinate.relativeY),
-          };
-        }
+        snappedDataPoint = {
+          x: xInverseDataSnapScale(interactionCoordinate.relativeX),
+          y: yInverseDataSnapScale(interactionCoordinate.relativeY),
+        };
       } else if (snapMode === 'tick') {
-        {
-          snappedDataPoint = {
-            x: xInverseTickSnapScale(interactionCoordinate.relativeX),
-            y: yInverseTickSnapScale(interactionCoordinate.relativeY),
-          };
-        }
+        snappedDataPoint = {
+          x: xInverseTickSnapScale(interactionCoordinate.relativeX),
+          y: yInverseTickSnapScale(interactionCoordinate.relativeY),
+        };
       }
 
       if (snappedDataPoint == null) {
