@@ -34,7 +34,6 @@ export interface UseAnnotationsManagerReturn {
   onChartMouseLeave: () => void;
 }
 
-// TODO priste tohle prepis z factory na renderer, aby to umelo jak pixely tak data
 function annotationFactory(
   type: AnnotationType,
   color: string,
@@ -58,44 +57,6 @@ function annotationFactory(
     pointB,
     label: undefined,
   };
-
-  // switch (type) {
-  //   case 'horizontalLine':
-  //     return { ...base, type: 'horizontalLine', y };
-  //   case 'verticalLine':
-  //     return { ...base, type: 'verticalLine', x };
-  //   case 'circle':
-  //     // If x2/y2 provided, calculate radius from distance
-  //     const r =
-  //       x2 !== undefined && y2 !== undefined
-  //         ? Math.sqrt(Math.pow(x2 - x, 2) + Math.pow(y2 - y, 2))
-  //         : 10;
-  //     return { ...base, type: 'circle', x, y, r };
-  //   case 'rectangle':
-  //     return {
-  //       ...base,
-  //       type: 'rectangle',
-  //       x1: x,
-  //       y1: y,
-  //       x2: x2 ?? x + 50,
-  //       y2: y2 ?? y + 50,
-  //     };
-  //   case 'label':
-  //     return { ...base, type: 'label', x, y, text: 'Label' };
-  //   case 'freeformLine':
-  //     return {
-  //       ...base,
-  //       type: 'freeformLine',
-  //       x1: x,
-  //       y1: y,
-  //       x2: x2 ?? x + 50,
-  //       y2: y2 ?? y + 50,
-  //     };
-  //   case 'crosshair':
-  //     return { ...base, type: 'crosshair', x, y };
-  //   default:
-  //     throw new Error(`Unknown annotation type: ${type}`);
-  // }
 }
 
 /**
