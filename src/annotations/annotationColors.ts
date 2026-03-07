@@ -19,7 +19,9 @@ export const ANNOTATION_COLORS = [
  * Colors cycle through the palette.
  */
 export const getAnnotationColor = (index: number): string => {
-  return ANNOTATION_COLORS[index % ANNOTATION_COLORS.length];
+  const normalized =
+    ((index % ANNOTATION_COLORS.length) + ANNOTATION_COLORS.length) % ANNOTATION_COLORS.length;
+  return ANNOTATION_COLORS[normalized];
 };
 
 /**
