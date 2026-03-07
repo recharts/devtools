@@ -222,7 +222,7 @@ export const useAnnotationsManager = (
       setIsAdding(null);
       setFollowerPosition(null);
     },
-    [isAdding, createAnnotation, props],
+    [isAdding, createAnnotation, props, snapMode],
   );
 
   const onChartMouseMove = useCallback(
