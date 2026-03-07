@@ -9,7 +9,7 @@
  *
  * The hook detects this by checking if the inverse scale returns a value that differs
  * significantly from the pixel position when converted back. If the roundtrip produces
- * a very different value, it indicates snapping occurred and we use that. Otherwise,
+ * a very different value, it indicates snapping occurred, and we use that. Otherwise,
  * we keep the original coordinate for smooth freeform positioning.
  */
 import React, { useCallback, MouseEvent } from 'react';
@@ -57,7 +57,9 @@ export interface SnapResult {
  * };
  * ```
  */
-export function useSnap(snapMode: SnapMode): (e: MouseEvent) => SnapResult | undefined {
+export function useSnap(
+  snapMode: SnapMode,
+): (e: MouseEvent<SVGGraphicsElement>) => SnapResult | undefined {
   // Get inverse scale functions for converting pixels -> data
   const xInverseDataSnapScale = useXAxisInverseDataSnapScale();
   const yInverseDataSnapScale = useYAxisInverseDataSnapScale();
@@ -68,12 +70,14 @@ export function useSnap(snapMode: SnapMode): (e: MouseEvent) => SnapResult | und
   const scaleY = useYAxisScale();
 
   return useCallback(
-    (e: React.MouseEvent): SnapResult => {
+    (e: React.MouseEvent<SVGGraphicsElement>): SnapResult => {
       if (
         xInverseDataSnapScale == null ||
         yInverseDataSnapScale == null ||
         xInverseTickSnapScape == null ||
-        yInverseTickSnapScape == null
+        yInverseTickSnapScape == null ||
+        scaleX == null ||
+        scaleY == null
       ) {
         /*
          * Scales not available yet (e.g., outside of chart context, or chart not fully initialized)
@@ -86,6 +90,11 @@ export function useSnap(snapMode: SnapMode): (e: MouseEvent) => SnapResult | und
         };
       }
 
+      /*
+       * Here we get pixel coordinates relative to the chart area (accounting for transforms)
+       * These are exact mouse interaction coordinates.
+       * Next, we need to "snap" these to the nearest data point if snapMode is enabled.
+       */
       const interactionCoordinate = getRelativeCoordinate(e);
       let snappedDataPoint: { x: unknown; y: unknown } | undefined = undefined;
       if (snapMode === 'data') {
@@ -105,6 +114,7 @@ export function useSnap(snapMode: SnapMode): (e: MouseEvent) => SnapResult | und
       }
 
       if (snappedDataPoint == null) {
+        // If snapping failed for some reason, just return the original interaction coordinates
         return {
           interactionCoordinate: {
             x: interactionCoordinate.relativeX,
@@ -115,9 +125,26 @@ export function useSnap(snapMode: SnapMode): (e: MouseEvent) => SnapResult | und
         };
       }
 
-      // Convert snapped data point back to pixel coordinates
+      /*
+       * Converts snapped data point back to pixel coordinates.
+       * Some components will read the snapped data point to display values, while others will use the snapped pixel coordinates for positioning.
+       * We return here both the snapped data point (for display) and the snapped pixel coordinates (for positioning) for convenience.
+       * If you are using ReferenceLine/ReferenceDot, you can skip this step and use the snappedDataPoint directly.
+       */
       const snappedX = scaleX(snappedDataPoint.x);
       const snappedY = scaleY(snappedDataPoint.y);
+
+      if (snappedX == null || snappedY == null) {
+        // If the snapped data point is outside the chart area, just return the original interaction coordinates
+        return {
+          interactionCoordinate: {
+            x: interactionCoordinate.relativeX,
+            y: interactionCoordinate.relativeY,
+          },
+          snappedCoordinate: undefined,
+          dataPoint: undefined,
+        };
+      }
 
       return {
         interactionCoordinate: {
