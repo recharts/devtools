@@ -239,8 +239,8 @@ function AnnotationEditForm({
                   onUpdateAnnotation({
                     ...annotation,
                     pointB: {
-                      snappedCoordinate: annotation.pointB?.snappedCoordinate,
-                      dataPoint: annotation.pointB?.dataPoint,
+                      snappedCoordinate: undefined,
+                      dataPoint: undefined,
                       interactionCoordinate: {
                         x: parseFloat(e.target.value),
                         y: annotation.pointB?.interactionCoordinate.y ?? 0,
@@ -260,8 +260,8 @@ function AnnotationEditForm({
                   onUpdateAnnotation({
                     ...annotation,
                     pointB: {
-                      snappedCoordinate: annotation.pointB?.snappedCoordinate,
-                      dataPoint: annotation.pointB?.dataPoint,
+                      snappedCoordinate: undefined,
+                      dataPoint: undefined,
                       interactionCoordinate: {
                         x: annotation.pointB?.interactionCoordinate.x ?? 0,
                         y: parseFloat(e.target.value),
