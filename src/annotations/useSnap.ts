@@ -63,8 +63,8 @@ export function useSnap(
   // Get inverse scale functions for converting pixels -> data
   const xInverseDataSnapScale = useXAxisInverseDataSnapScale();
   const yInverseDataSnapScale = useYAxisInverseDataSnapScale();
-  const xInverseTickSnapScape = useXAxisInverseTickSnapScale();
-  const yInverseTickSnapScape = useYAxisInverseTickSnapScale();
+  const xInverseTickSnapScale = useXAxisInverseTickSnapScale();
+  const yInverseTickSnapScale = useYAxisInverseTickSnapScale();
   // And forward scales for data -> pixels
   const scaleX = useXAxisScale();
   const scaleY = useYAxisScale();
@@ -74,8 +74,8 @@ export function useSnap(
       if (
         xInverseDataSnapScale == null ||
         yInverseDataSnapScale == null ||
-        xInverseTickSnapScape == null ||
-        yInverseTickSnapScape == null ||
+        xInverseTickSnapScale == null ||
+        yInverseTickSnapScale == null ||
         scaleX == null ||
         scaleY == null
       ) {
@@ -107,8 +107,8 @@ export function useSnap(
       } else if (snapMode === 'tick') {
         {
           snappedDataPoint = {
-            x: xInverseTickSnapScape(interactionCoordinate.relativeX),
-            y: yInverseTickSnapScape(interactionCoordinate.relativeY),
+            x: xInverseTickSnapScale(interactionCoordinate.relativeX),
+            y: yInverseTickSnapScale(interactionCoordinate.relativeY),
           };
         }
       }
@@ -159,8 +159,8 @@ export function useSnap(
       snapMode,
       xInverseDataSnapScale,
       yInverseDataSnapScale,
-      xInverseTickSnapScape,
-      yInverseTickSnapScape,
+      xInverseTickSnapScale,
+      yInverseTickSnapScale,
     ],
   );
 }
