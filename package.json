@@ -30,19 +30,21 @@
   "author": "Recharts Group",
   "license": "MIT",
   "devDependencies": {
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^20.0.0",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "eslint": "^9.0.0",
     "eslint-plugin-import": "^2.31.0",
     "globals": "^15.0.0",
+    "jsdom": "^28.1.0",
     "prettier": "^3.0.0",
-    "typescript": "^5.0.0",
-    "typescript-eslint": "^8.0.0",
-    "vitest": "^1.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "recharts": "^3.8.0"
+    "recharts": "^3.8.0",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.0.0",
+    "vitest": "^1.0.0"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",

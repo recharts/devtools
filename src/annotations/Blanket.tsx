@@ -14,6 +14,8 @@ export interface BlanketProps {
    * when in annotation editing mode.
    */
   fill?: string;
+  /** Optional CSS cursor value applied to the blanket rect. */
+  cursor?: string;
 }
 
 /**
@@ -39,6 +41,7 @@ export const Blanket = React.memo(function Blanket({
   onMouseEnter,
   pointerEvents = 'none',
   fill = 'transparent',
+  cursor,
 }: BlanketProps) {
   return (
     <>
@@ -48,7 +51,7 @@ export const Blanket = React.memo(function Blanket({
         width="100%"
         height="100%"
         fill={fill}
-        style={{ pointerEvents }}
+        style={{ pointerEvents, cursor }}
         onClick={onClick}
         onMouseMove={onMouseMove}
         onMouseLeave={onMouseLeave}

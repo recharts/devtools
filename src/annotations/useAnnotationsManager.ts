@@ -55,7 +55,7 @@ function annotationFactory(
     style: baseStyle,
     pointA,
     pointB,
-    label: undefined,
+    label: type === 'label' ? { value: 'Label' } : undefined,
   };
 }
 
