@@ -56,10 +56,10 @@ const SINGLE_CLICK_TYPES: AnnotationType[] = [
 const TWO_POINT_TYPES: AnnotationType[] = ['circle', 'rectangle', 'freeformLine'];
 
 const SNAP_CONFIGS = [
-  { snapMode: 'none' as SnapMode, expectedPositionType: 'pixel', makeSnap: pixelSnap },
-  { snapMode: 'data' as SnapMode, expectedPositionType: 'data', makeSnap: dataSnap },
-  { snapMode: 'tick' as SnapMode, expectedPositionType: 'data', makeSnap: tickSnap },
-];
+  { snapMode: 'none', expectedPositionType: 'pixel', makeSnap: pixelSnap },
+  { snapMode: 'data', expectedPositionType: 'data', makeSnap: dataSnap },
+  { snapMode: 'tick', expectedPositionType: 'data', makeSnap: tickSnap },
+] as const;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -77,191 +77,231 @@ function setup(type: AnnotationType, snapMode: SnapMode) {
  * For circle and rectangle in pixel mode, RenderAnnotations applies applyAnchorOffset
  * before forwarding to onChartMouseDown.  This helper mirrors that transform.
  */
-function anchorSnap(
-  type: AnnotationType,
-  snapMode: SnapMode,
-  x: number,
-  y: number,
-): SnapResult {
+function anchorSnap(type: AnnotationType, snapMode: SnapMode, x: number, y: number): SnapResult {
   return applyAnchorOffset(pixelSnap(x, y), type, snapMode);
 }
 
 // ─── Single-click annotation tests ───────────────────────────────────────────
 
 describe('single-click annotations', () => {
-  describe.each(SINGLE_CLICK_TYPES)('%s', type => {
-    describe.each(SNAP_CONFIGS)('snap mode: $snapMode', ({ snapMode, expectedPositionType, makeSnap }) => {
-      it('creates annotation on click and clears isAdding', () => {
-        const result = setup(type, snapMode);
-        act(() => { result.current.onChartClick(makeSnap(100, 80)); });
+  describe.each(SINGLE_CLICK_TYPES)('%s', (type) => {
+    describe.each(SNAP_CONFIGS)(
+      'snap mode: $snapMode',
+      ({ snapMode, expectedPositionType, makeSnap }) => {
+        it('creates annotation on click and clears isAdding', () => {
+          const result = setup(type, snapMode);
+          act(() => {
+            result.current.onChartClick(makeSnap(100, 80));
+          });
 
-        expect(result.current.annotations).toHaveLength(1);
-        expect(result.current.annotations[0].type).toBe(type);
-        expect(result.current.annotations[0].positionType).toBe(expectedPositionType);
-        expect(result.current.isAdding).toBeNull();
-      });
-
-      it('stores the snap result as pointA', () => {
-        const result = setup(type, snapMode);
-        const snap = makeSnap(123, 456);
-        act(() => { result.current.onChartClick(snap); });
-
-        expect(result.current.annotations[0].pointA).toBe(snap);
-      });
-
-      it('follower tracks mouse move while adding', () => {
-        const result = setup(type, snapMode);
-        const snap = makeSnap(55, 66);
-        act(() => { result.current.onChartMouseMove(snap); });
-
-        expect(result.current.followerPosition).toBe(snap);
-      });
-
-      it('cancels adding without creating an annotation', () => {
-        const result = setup(type, snapMode);
-        act(() => { result.current.cancelAddingAnnotation(); });
-
-        expect(result.current.annotations).toHaveLength(0);
-        expect(result.current.isAdding).toBeNull();
-        expect(result.current.followerPosition).toBeNull();
-      });
-
-      it('mouseDown and mouseUp are no-ops for single-click types', () => {
-        const result = setup(type, snapMode);
-        act(() => {
-          result.current.onChartMouseDown(makeSnap(100, 80));
-          result.current.onChartMouseUp(makeSnap(100, 80));
+          expect(result.current.annotations).toHaveLength(1);
+          expect(result.current.annotations[0].type).toBe(type);
+          expect(result.current.annotations[0].positionType).toBe(expectedPositionType);
+          expect(result.current.isAdding).toBeNull();
         });
 
-        // Still waiting for a click — not completed yet
-        expect(result.current.annotations).toHaveLength(0);
-        expect(result.current.isAdding).toBe(type);
-      });
-    });
+        it('stores the snap result as pointA', () => {
+          const result = setup(type, snapMode);
+          const snap = makeSnap(123, 456);
+          act(() => {
+            result.current.onChartClick(snap);
+          });
+
+          expect(result.current.annotations[0].pointA).toBe(snap);
+        });
+
+        it('follower tracks mouse move while adding', () => {
+          const result = setup(type, snapMode);
+          const snap = makeSnap(55, 66);
+          act(() => {
+            result.current.onChartMouseMove(snap);
+          });
+
+          expect(result.current.followerPosition).toBe(snap);
+        });
+
+        it('cancels adding without creating an annotation', () => {
+          const result = setup(type, snapMode);
+          act(() => {
+            result.current.cancelAddingAnnotation();
+          });
+
+          expect(result.current.annotations).toHaveLength(0);
+          expect(result.current.isAdding).toBeNull();
+          expect(result.current.followerPosition).toBeNull();
+        });
+
+        it('mouseDown and mouseUp are no-ops for single-click types', () => {
+          const result = setup(type, snapMode);
+          act(() => {
+            result.current.onChartMouseDown(makeSnap(100, 80));
+            result.current.onChartMouseUp(makeSnap(100, 80));
+          });
+
+          // Still waiting for a click — not completed yet
+          expect(result.current.annotations).toHaveLength(0);
+          expect(result.current.isAdding).toBe(type);
+        });
+      },
+    );
   });
 });
 
 // ─── Two-point annotation tests ───────────────────────────────────────────────
 
 describe('two-point annotations', () => {
-  describe.each(TWO_POINT_TYPES)('%s', type => {
-    describe.each(SNAP_CONFIGS)('snap mode: $snapMode', ({ snapMode, expectedPositionType, makeSnap }) => {
+  describe.each(TWO_POINT_TYPES)('%s', (type) => {
+    describe.each(SNAP_CONFIGS)(
+      'snap mode: $snapMode',
+      ({ snapMode, expectedPositionType, makeSnap }) => {
+        // ── Click + drag ──────────────────────────────────────────────────────
 
-      // ── Click + drag ──────────────────────────────────────────────────────
+        describe('click + drag interaction', () => {
+          it('creates annotation when mouseUp is far from mouseDown', () => {
+            const result = setup(type, snapMode);
+            // For circle/rectangle in pixel mode RenderAnnotations offsets the anchor.
+            const anchor = anchorSnap(type, snapMode, 100, 80);
+            const far = makeSnap(200, 180); // real cursor position used as pointB
 
-      describe('click + drag interaction', () => {
-        it('creates annotation when mouseUp is far from mouseDown', () => {
-          const result = setup(type, snapMode);
-          // For circle/rectangle in pixel mode RenderAnnotations offsets the anchor.
-          const anchor = anchorSnap(type, snapMode, 100, 80);
-          const far = makeSnap(200, 180);  // real cursor position used as pointB
+            act(() => {
+              result.current.onChartMouseDown(anchor);
+            });
+            expect(result.current.firstClickPosition).toBe(anchor);
 
-          act(() => { result.current.onChartMouseDown(anchor); });
-          expect(result.current.firstClickPosition).toBe(anchor);
+            act(() => {
+              result.current.onChartMouseUp(far);
+            });
 
-          act(() => { result.current.onChartMouseUp(far); });
+            expect(result.current.annotations).toHaveLength(1);
+            expect(result.current.annotations[0].type).toBe(type);
+            expect(result.current.annotations[0].positionType).toBe(expectedPositionType);
+            expect(result.current.annotations[0].pointA).toBe(anchor);
+            expect(result.current.annotations[0].pointB).toBe(far);
+            expect(result.current.isAdding).toBeNull();
+            expect(result.current.firstClickPosition).toBeNull();
+          });
 
-          expect(result.current.annotations).toHaveLength(1);
-          expect(result.current.annotations[0].type).toBe(type);
-          expect(result.current.annotations[0].positionType).toBe(expectedPositionType);
-          expect(result.current.annotations[0].pointA).toBe(anchor);
-          expect(result.current.annotations[0].pointB).toBe(far);
-          expect(result.current.isAdding).toBeNull();
-          expect(result.current.firstClickPosition).toBeNull();
+          it('follower shows from anchor to current cursor after mouseDown', () => {
+            const result = setup(type, snapMode);
+            const anchor = anchorSnap(type, snapMode, 100, 80);
+            const moving = makeSnap(150, 120);
+
+            act(() => {
+              result.current.onChartMouseDown(anchor);
+            });
+            act(() => {
+              result.current.onChartMouseMove(moving);
+            });
+
+            expect(result.current.firstClickPosition).toBe(anchor);
+            expect(result.current.followerPosition).toBe(moving);
+          });
         });
 
-        it('follower shows from anchor to current cursor after mouseDown', () => {
-          const result = setup(type, snapMode);
-          const anchor = anchorSnap(type, snapMode, 100, 80);
-          const moving = makeSnap(150, 120);
+        // ── Two-click ─────────────────────────────────────────────────────────
 
-          act(() => { result.current.onChartMouseDown(anchor); });
-          act(() => { result.current.onChartMouseMove(moving); });
+        describe('two-click interaction', () => {
+          it('does not create annotation when mouseUp is at the same position as mouseDown', () => {
+            const result = setup(type, snapMode);
+            const anchor = anchorSnap(type, snapMode, 100, 80);
 
-          expect(result.current.firstClickPosition).toBe(anchor);
-          expect(result.current.followerPosition).toBe(moving);
+            act(() => {
+              result.current.onChartMouseDown(anchor);
+            });
+            // Simulate the stationary mouseUp (same snap result = dist 0 ≤ threshold)
+            act(() => {
+              result.current.onChartMouseUp(anchor);
+            });
+
+            expect(result.current.annotations).toHaveLength(0);
+            expect(result.current.isAdding).toBe(type);
+            expect(result.current.firstClickPosition).toBe(anchor);
+          });
+
+          it('creates annotation on second mouseUp after moving the cursor', () => {
+            const result = setup(type, snapMode);
+            const anchor = anchorSnap(type, snapMode, 100, 80);
+            const far = makeSnap(200, 180);
+
+            // First click: sets anchor, stationary mouseUp is ignored by RenderAnnotations
+            // (we replicate that by not calling onChartMouseUp after first click)
+            act(() => {
+              result.current.onChartMouseDown(anchor);
+            });
+
+            // Mouse moves
+            act(() => {
+              result.current.onChartMouseMove(far);
+            });
+
+            // Second click: second mouseDown is a no-op (anchor already recorded)
+            act(() => {
+              result.current.onChartMouseDown(far);
+            });
+            expect(result.current.firstClickPosition).toBe(anchor); // unchanged
+
+            // Second mouseUp confirms at current cursor
+            act(() => {
+              result.current.onChartMouseUp(far);
+            });
+
+            expect(result.current.annotations).toHaveLength(1);
+            expect(result.current.annotations[0].type).toBe(type);
+            expect(result.current.annotations[0].positionType).toBe(expectedPositionType);
+            expect(result.current.annotations[0].pointA).toBe(anchor);
+            expect(result.current.annotations[0].pointB).toBe(far);
+            expect(result.current.isAdding).toBeNull();
+          });
+
+          it('follower updates while waiting for second click', () => {
+            const result = setup(type, snapMode);
+            const anchor = anchorSnap(type, snapMode, 100, 80);
+            const mid = makeSnap(150, 120);
+            const far = makeSnap(200, 180);
+
+            act(() => {
+              result.current.onChartMouseDown(anchor);
+            });
+            act(() => {
+              result.current.onChartMouseMove(mid);
+            });
+            expect(result.current.followerPosition).toBe(mid);
+
+            act(() => {
+              result.current.onChartMouseMove(far);
+            });
+            expect(result.current.followerPosition).toBe(far);
+          });
         });
-      });
 
-      // ── Two-click ─────────────────────────────────────────────────────────
+        // ── Shared two-point behaviour ─────────────────────────────────────────
 
-      describe('two-click interaction', () => {
-        it('does not create annotation when mouseUp is at the same position as mouseDown', () => {
+        it('click event is ignored (handled by mouseDown/mouseUp instead)', () => {
           const result = setup(type, snapMode);
-          const anchor = anchorSnap(type, snapMode, 100, 80);
-
-          act(() => { result.current.onChartMouseDown(anchor); });
-          // Simulate the stationary mouseUp (same snap result = dist 0 ≤ threshold)
-          act(() => { result.current.onChartMouseUp(anchor); });
+          act(() => {
+            result.current.onChartClick(makeSnap(100, 80));
+          });
 
           expect(result.current.annotations).toHaveLength(0);
           expect(result.current.isAdding).toBe(type);
-          expect(result.current.firstClickPosition).toBe(anchor);
         });
 
-        it('creates annotation on second mouseUp after moving the cursor', () => {
+        it('cancel clears anchor and stops adding', () => {
           const result = setup(type, snapMode);
           const anchor = anchorSnap(type, snapMode, 100, 80);
-          const far = makeSnap(200, 180);
+          act(() => {
+            result.current.onChartMouseDown(anchor);
+          });
+          act(() => {
+            result.current.cancelAddingAnnotation();
+          });
 
-          // First click: sets anchor, stationary mouseUp is ignored by RenderAnnotations
-          // (we replicate that by not calling onChartMouseUp after first click)
-          act(() => { result.current.onChartMouseDown(anchor); });
-
-          // Mouse moves
-          act(() => { result.current.onChartMouseMove(far); });
-
-          // Second click: second mouseDown is a no-op (anchor already recorded)
-          act(() => { result.current.onChartMouseDown(far); });
-          expect(result.current.firstClickPosition).toBe(anchor); // unchanged
-
-          // Second mouseUp confirms at current cursor
-          act(() => { result.current.onChartMouseUp(far); });
-
-          expect(result.current.annotations).toHaveLength(1);
-          expect(result.current.annotations[0].type).toBe(type);
-          expect(result.current.annotations[0].positionType).toBe(expectedPositionType);
-          expect(result.current.annotations[0].pointA).toBe(anchor);
-          expect(result.current.annotations[0].pointB).toBe(far);
           expect(result.current.isAdding).toBeNull();
+          expect(result.current.firstClickPosition).toBeNull();
+          expect(result.current.annotations).toHaveLength(0);
         });
-
-        it('follower updates while waiting for second click', () => {
-          const result = setup(type, snapMode);
-          const anchor = anchorSnap(type, snapMode, 100, 80);
-          const mid = makeSnap(150, 120);
-          const far = makeSnap(200, 180);
-
-          act(() => { result.current.onChartMouseDown(anchor); });
-          act(() => { result.current.onChartMouseMove(mid); });
-          expect(result.current.followerPosition).toBe(mid);
-
-          act(() => { result.current.onChartMouseMove(far); });
-          expect(result.current.followerPosition).toBe(far);
-        });
-      });
-
-      // ── Shared two-point behaviour ─────────────────────────────────────────
-
-      it('click event is ignored (handled by mouseDown/mouseUp instead)', () => {
-        const result = setup(type, snapMode);
-        act(() => { result.current.onChartClick(makeSnap(100, 80)); });
-
-        expect(result.current.annotations).toHaveLength(0);
-        expect(result.current.isAdding).toBe(type);
-      });
-
-      it('cancel clears anchor and stops adding', () => {
-        const result = setup(type, snapMode);
-        const anchor = anchorSnap(type, snapMode, 100, 80);
-        act(() => { result.current.onChartMouseDown(anchor); });
-        act(() => { result.current.cancelAddingAnnotation(); });
-
-        expect(result.current.isAdding).toBeNull();
-        expect(result.current.firstClickPosition).toBeNull();
-        expect(result.current.annotations).toHaveLength(0);
-      });
-    });
+      },
+    );
   });
 
   // ── Circle-specific: anchor offset gives correct initial radius ─────────────
@@ -275,8 +315,12 @@ describe('two-point annotations', () => {
       const anchor = anchorSnap('circle', 'none', realCursorX, realCursorY);
       const realCursor = pixelSnap(realCursorX, realCursorY);
 
-      act(() => { result.current.onChartMouseDown(anchor); });
-      act(() => { result.current.onChartMouseUp(realCursor); });
+      act(() => {
+        result.current.onChartMouseDown(anchor);
+      });
+      act(() => {
+        result.current.onChartMouseUp(realCursor);
+      });
 
       const annotation = result.current.annotations[0];
       const ax = annotation.pointA.interactionCoordinate.x;
@@ -299,8 +343,12 @@ describe('two-point annotations', () => {
       const anchor = anchorSnap('rectangle', 'none', realCursorX, realCursorY);
       const realCursor = pixelSnap(realCursorX, realCursorY);
 
-      act(() => { result.current.onChartMouseDown(anchor); });
-      act(() => { result.current.onChartMouseUp(realCursor); });
+      act(() => {
+        result.current.onChartMouseDown(anchor);
+      });
+      act(() => {
+        result.current.onChartMouseUp(realCursor);
+      });
 
       const annotation = result.current.annotations[0];
       const ax = annotation.pointA.interactionCoordinate.x;
@@ -327,37 +375,63 @@ describe('general state management', () => {
 
   it('follower clears on mouse leave', () => {
     const { result } = renderHook(() => useAnnotationsManager());
-    act(() => { result.current.startAddingAnnotation('horizontalLine'); });
-    act(() => { result.current.onChartMouseMove(pixelSnap(50, 50)); });
-    act(() => { result.current.onChartMouseLeave(); });
+    act(() => {
+      result.current.startAddingAnnotation('horizontalLine');
+    });
+    act(() => {
+      result.current.onChartMouseMove(pixelSnap(50, 50));
+    });
+    act(() => {
+      result.current.onChartMouseLeave();
+    });
     expect(result.current.followerPosition).toBeNull();
   });
 
   it('multiple annotations can be added sequentially', () => {
     const { result } = renderHook(() => useAnnotationsManager());
-    act(() => { result.current.startAddingAnnotation('horizontalLine'); });
-    act(() => { result.current.onChartClick(pixelSnap(100, 80)); });
-    act(() => { result.current.startAddingAnnotation('verticalLine'); });
-    act(() => { result.current.onChartClick(pixelSnap(200, 160)); });
+    act(() => {
+      result.current.startAddingAnnotation('horizontalLine');
+    });
+    act(() => {
+      result.current.onChartClick(pixelSnap(100, 80));
+    });
+    act(() => {
+      result.current.startAddingAnnotation('verticalLine');
+    });
+    act(() => {
+      result.current.onChartClick(pixelSnap(200, 160));
+    });
     expect(result.current.annotations).toHaveLength(2);
   });
 
   it('deleteAnnotation removes the correct annotation', () => {
     const { result } = renderHook(() => useAnnotationsManager());
-    act(() => { result.current.startAddingAnnotation('horizontalLine'); });
-    act(() => { result.current.onChartClick(pixelSnap(100, 80)); });
+    act(() => {
+      result.current.startAddingAnnotation('horizontalLine');
+    });
+    act(() => {
+      result.current.onChartClick(pixelSnap(100, 80));
+    });
     const id = result.current.annotations[0].id;
-    act(() => { result.current.deleteAnnotation(id); });
+    act(() => {
+      result.current.deleteAnnotation(id);
+    });
     expect(result.current.annotations).toHaveLength(0);
   });
 
   it('updateAnnotation replaces the annotation in place', () => {
     const { result } = renderHook(() => useAnnotationsManager());
-    act(() => { result.current.startAddingAnnotation('horizontalLine'); });
-    act(() => { result.current.onChartClick(pixelSnap(100, 80)); });
+    act(() => {
+      result.current.startAddingAnnotation('horizontalLine');
+    });
+    act(() => {
+      result.current.onChartClick(pixelSnap(100, 80));
+    });
     const original = result.current.annotations[0];
     const updated = { ...original, style: { ...original.style, color: 'red' } };
-    act(() => { result.current.updateAnnotation(updated); });
+    act(() => {
+      result.current.updateAnnotation(updated);
+    });
 
     expect(result.current.annotations[0].style.color).toBe('red');
     expect(result.current.annotations).toHaveLength(1);
