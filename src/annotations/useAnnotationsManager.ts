@@ -3,6 +3,11 @@ import type { Annotation, AnnotationStyle, AnnotationType, SnapMode } from './ty
 import { DEFAULT_ANNOTATION_STYLE, getAnnotationColor } from './annotationColors.js';
 import { SnapResult } from './useSnap.js';
 import { getDistance } from './getDistance.js';
+import {
+  DEFAULT_CIRCLE_RADIUS,
+  DEFAULT_RECT_HEIGHT,
+  DEFAULT_RECT_WIDTH,
+} from './annotationInteractionUtils';
 
 export interface UseAnnotationsManagerProps {
   onAnnotationAdd?: (annotation: Annotation) => void;
@@ -152,8 +157,28 @@ export const useAnnotationsManager = (
         if (firstClickPosition) {
           const dist = getDistance(firstClickPosition, snap);
 
+          let expectedMinimumDistance: number = 3;
+
+          switch (isAdding) {
+            case 'circle': {
+              expectedMinimumDistance += DEFAULT_CIRCLE_RADIUS;
+              break;
+            }
+            case 'rectangle': {
+              expectedMinimumDistance += getDistance(snap, {
+                interactionCoordinate: {
+                  x: snap.interactionCoordinate.x + DEFAULT_RECT_WIDTH,
+                  y: snap.interactionCoordinate.y + DEFAULT_RECT_HEIGHT,
+                },
+                snappedCoordinate: undefined,
+                dataPoint: undefined,
+              });
+              break;
+            }
+          }
+
           // Threshold to distinguish between a simple click (to set anchor) and a drag/second click
-          if (dist > 3) {
+          if (dist > expectedMinimumDistance) {
             const newAnnotation = createAnnotation(isAdding, snapMode, firstClickPosition, snap);
             setAnnotations((prev) => [...prev, newAnnotation]);
             props?.onAnnotationAdd?.(newAnnotation);

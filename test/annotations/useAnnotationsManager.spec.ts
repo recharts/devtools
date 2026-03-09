@@ -201,49 +201,49 @@ describe('two-point annotations', () => {
         // ── Two-click ─────────────────────────────────────────────────────────
 
         describe('two-click interaction', () => {
-          it('does not create annotation when mouseUp is at the same position as mouseDown', () => {
+          it('first click (mouseDown+mouseUp at same spot) does not confirm the annotation', () => {
             const result = setup(type, snapMode);
             const anchor = anchorSnap(type, snapMode, 100, 80);
 
+            // Click 1: full mouseDown → mouseUp without moving
             act(() => {
               result.current.onChartMouseDown(anchor);
             });
-            // Simulate the stationary mouseUp (same snap result = dist 0 ≤ threshold)
             act(() => {
               result.current.onChartMouseUp(anchor);
-            });
+            }); // dist = 0 ≤ threshold
 
             expect(result.current.annotations).toHaveLength(0);
             expect(result.current.isAdding).toBe(type);
-            expect(result.current.firstClickPosition).toBe(anchor);
+            expect(result.current.firstClickPosition).toBe(anchor); // anchor is still locked
           });
 
-          it('creates annotation on second mouseUp after moving the cursor', () => {
+          it('second click (mouseDown+mouseUp at new spot) confirms the annotation', () => {
             const result = setup(type, snapMode);
             const anchor = anchorSnap(type, snapMode, 100, 80);
             const far = makeSnap(200, 180);
 
-            // First click: sets anchor, stationary mouseUp is ignored by RenderAnnotations
-            // (we replicate that by not calling onChartMouseUp after first click)
+            // Click 1: sets anchor
             act(() => {
               result.current.onChartMouseDown(anchor);
             });
+            act(() => {
+              result.current.onChartMouseUp(anchor);
+            }); // stationary — no confirm
 
-            // Mouse moves
+            // Move cursor
             act(() => {
               result.current.onChartMouseMove(far);
             });
 
-            // Second click: second mouseDown is a no-op (anchor already recorded)
+            // Click 2: confirms at the new position
             act(() => {
               result.current.onChartMouseDown(far);
-            });
-            expect(result.current.firstClickPosition).toBe(anchor); // unchanged
-
-            // Second mouseUp confirms at current cursor
+            }); // no-op, anchor unchanged
+            expect(result.current.firstClickPosition).toBe(anchor);
             act(() => {
               result.current.onChartMouseUp(far);
-            });
+            }); // dist > threshold → confirm
 
             expect(result.current.annotations).toHaveLength(1);
             expect(result.current.annotations[0].type).toBe(type);
@@ -253,15 +253,21 @@ describe('two-point annotations', () => {
             expect(result.current.isAdding).toBeNull();
           });
 
-          it('follower updates while waiting for second click', () => {
+          it('follower updates between first and second click', () => {
             const result = setup(type, snapMode);
             const anchor = anchorSnap(type, snapMode, 100, 80);
             const mid = makeSnap(150, 120);
             const far = makeSnap(200, 180);
 
+            // Click 1
             act(() => {
               result.current.onChartMouseDown(anchor);
             });
+            act(() => {
+              result.current.onChartMouseUp(anchor);
+            });
+
+            // Mouse moves
             act(() => {
               result.current.onChartMouseMove(mid);
             });
@@ -318,18 +324,13 @@ describe('two-point annotations', () => {
       act(() => {
         result.current.onChartMouseDown(anchor);
       });
-      act(() => {
-        result.current.onChartMouseUp(realCursor);
-      });
 
-      const annotation = result.current.annotations[0];
-      const ax = annotation.pointA.interactionCoordinate.x;
-      const ay = annotation.pointA.interactionCoordinate.y;
-      const bx = annotation.pointB!.interactionCoordinate.x;
-      const by = annotation.pointB!.interactionCoordinate.y;
-      const radius = Math.sqrt((ax - bx) ** 2 + (ay - by) ** 2);
+      // we're still adding because mouseUp hasn't happened yet
+      expect(result.current.isAdding).toBe('circle');
 
-      expect(radius).toBe(DEFAULT_CIRCLE_RADIUS);
+      const { x, y } = result.current.firstClickPosition?.interactionCoordinate ?? {};
+      expect(x).toBe(realCursorX - DEFAULT_CIRCLE_RADIUS);
+      expect(y).toBe(realCursorY);
     });
   });
 
@@ -346,18 +347,12 @@ describe('two-point annotations', () => {
       act(() => {
         result.current.onChartMouseDown(anchor);
       });
-      act(() => {
-        result.current.onChartMouseUp(realCursor);
-      });
 
-      const annotation = result.current.annotations[0];
-      const ax = annotation.pointA.interactionCoordinate.x;
-      const ay = annotation.pointA.interactionCoordinate.y;
-      const bx = annotation.pointB!.interactionCoordinate.x;
-      const by = annotation.pointB!.interactionCoordinate.y;
+      expect(result.current.isAdding).toBe('rectangle');
 
-      expect(Math.abs(bx - ax)).toBe(DEFAULT_RECT_WIDTH);
-      expect(Math.abs(by - ay)).toBe(DEFAULT_RECT_HEIGHT);
+      const { x, y } = result.current.firstClickPosition?.interactionCoordinate ?? {};
+      expect(x).toBe(realCursorX - DEFAULT_RECT_WIDTH);
+      expect(y).toBe(realCursorY - DEFAULT_RECT_HEIGHT);
     });
   });
 });

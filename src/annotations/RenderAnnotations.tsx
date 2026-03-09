@@ -144,7 +144,11 @@ function renderFollowerAnnotation(
   }
   if (type === 'freeformLine') {
     // Default short angled stub so the line direction is hinted at.
-    return renderAnnotation({ ...baseAnnotation, pointA: position, pointB: syntheticPoint(px + 30, py - 15) });
+    return renderAnnotation({
+      ...baseAnnotation,
+      pointA: position,
+      pointB: syntheticPoint(px + 30, py - 15),
+    });
   }
 
   // Single-click annotations (horizontalLine, verticalLine, crosshair, label).
@@ -173,8 +177,7 @@ export function RenderAnnotations({
 
   // Circle and rectangle use a fake cursor in pixel mode: the real cursor is hidden and
   // the anchor crosshair is drawn at pointA (offset from the actual mouse position).
-  const useFakeCursor =
-    (isAdding === 'circle' || isAdding === 'rectangle') && snapMode === 'none';
+  const useFakeCursor = isAdding === 'circle' || isAdding === 'rectangle';
 
   // Tracks the real (non-offset) cursor position at the last mouseDown for circle/rectangle.
   // Used to distinguish a click (tiny movement → two-click flow) from a drag (large movement
@@ -186,7 +189,7 @@ export function RenderAnnotations({
     (e: React.MouseEvent<SVGGraphicsElement>) => {
       const snapped = snap(e);
       if (snapped) {
-        onChartClick(snapped);
+        onChartClick(applyAnchorOffset(snapped, isAdding, snapMode));
       }
     },
     [onChartClick, snap],
@@ -218,7 +221,10 @@ export function RenderAnnotations({
           // This is the FIRST click (anchor not yet recorded).
           // Only confirm via drag — a stationary click just sets the anchor so the user
           // can move the mouse and click again to choose the final size.
-          const moved = isDragInteraction(mouseDownRealPosRef.current, snapped.interactionCoordinate);
+          const moved = isDragInteraction(
+            mouseDownRealPosRef.current,
+            snapped.interactionCoordinate,
+          );
           mouseDownRealPosRef.current = null;
           if (!moved) return;
         } else {
