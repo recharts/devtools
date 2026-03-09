@@ -7,7 +7,7 @@ import {
   DEFAULT_CIRCLE_RADIUS,
   DEFAULT_RECT_HEIGHT,
   DEFAULT_RECT_WIDTH,
-} from './annotationInteractionUtils';
+} from './annotationInteractionUtils.js';
 
 export interface UseAnnotationsManagerProps {
   onAnnotationAdd?: (annotation: Annotation) => void;
