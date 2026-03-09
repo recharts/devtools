@@ -159,21 +159,26 @@ export const useAnnotationsManager = (
 
           let expectedMinimumDistance: number = 3;
 
-          switch (isAdding) {
-            case 'circle': {
-              expectedMinimumDistance += DEFAULT_CIRCLE_RADIUS;
-              break;
-            }
-            case 'rectangle': {
-              expectedMinimumDistance += getDistance(snap, {
-                interactionCoordinate: {
-                  x: snap.interactionCoordinate.x + DEFAULT_RECT_WIDTH,
-                  y: snap.interactionCoordinate.y + DEFAULT_RECT_HEIGHT,
-                },
-                snappedCoordinate: undefined,
-                dataPoint: undefined,
-              });
-              break;
+          // In pixel mode the anchor is offset from the real cursor by the default annotation
+          // size, so we raise the threshold to avoid confirming on the first stationary click.
+          // In data/tick mode there is no offset, so the base 3px threshold is sufficient.
+          if (snapMode === 'none') {
+            switch (isAdding) {
+              case 'circle': {
+                expectedMinimumDistance += DEFAULT_CIRCLE_RADIUS;
+                break;
+              }
+              case 'rectangle': {
+                expectedMinimumDistance += getDistance(snap, {
+                  interactionCoordinate: {
+                    x: snap.interactionCoordinate.x + DEFAULT_RECT_WIDTH,
+                    y: snap.interactionCoordinate.y + DEFAULT_RECT_HEIGHT,
+                  },
+                  snappedCoordinate: undefined,
+                  dataPoint: undefined,
+                });
+                break;
+              }
             }
           }
 

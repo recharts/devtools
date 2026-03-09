@@ -13,6 +13,7 @@ import { HorizontalLine } from './HorizontalLine.js';
 import { VerticalLine } from './VerticalLine.js';
 import { CircleAnnotation } from './CircleAnnotation.js';
 import { RectangleAnnotation } from './RectangleAnnotation.js';
+import { getDistance } from './getDistance.js';
 import { LabelAnnotation } from './LabelAnnotation.js';
 import { FreeformLine } from './FreeformLine.js';
 import { Crosshair } from './Crosshair.js';
@@ -117,29 +118,85 @@ function renderFollowerAnnotation(
     label: type === 'label' ? { value: 'Label' } : undefined,
   };
 
-  const px = position.interactionCoordinate.x;
-  const py = position.interactionCoordinate.y;
+  // Use the snapped pixel position when available so the preview follows the nearest
+  // data/tick point rather than the raw cursor.  Falls back to the real cursor in pixel mode.
+  const snapCoord = position.snappedCoordinate ?? position.interactionCoordinate;
+  const px = snapCoord.x;
+  const py = snapCoord.y;
 
   // After the first click, render from the fixed anchor to the current cursor position.
   if (firstClickPosition != null) {
+    // In data/tick modes the anchor has no pixel offset, so dist(anchor, cursor) = 0 right
+    // after the first click — the shape would collapse to invisible.  Clamp to the same
+    // default size used for the pre-click preview so the transition is seamless (at exactly
+    // DEFAULT_CIRCLE_RADIUS the synthesised radius equals the real distance → no jump).
+    if (snapMode !== 'none') {
+      const dist = getDistance(firstClickPosition, position);
+      const fpx = firstClickPosition.interactionCoordinate.x;
+      const fpy = firstClickPosition.interactionCoordinate.y;
+
+      if (type === 'circle' && dist < DEFAULT_CIRCLE_RADIUS) {
+        // positionType stays 'data': CircleAnnotation renders centre from pointA.dataPoint,
+        // radius from getDistance(pointA, pointB) using interactionCoordinate.
+        return renderAnnotation({
+          ...baseAnnotation,
+          pointA: firstClickPosition,
+          pointB: syntheticPoint(fpx + DEFAULT_CIRCLE_RADIUS, fpy),
+        });
+      }
+      if (type === 'rectangle' && dist < DEFAULT_CIRCLE_RADIUS) {
+        // RectangleAnnotation needs pointB.dataPoint in data mode; syntheticPoint has none,
+        // so fall back to pixel rendering.  Use the snapped pixel as the anchor corner so
+        // the default-size rectangle sits at the same position as both the pre-click preview
+        // and the post-move data-mode rendering.
+        const anchorX = firstClickPosition.snappedCoordinate?.x ?? firstClickPosition.interactionCoordinate.x;
+        const anchorY = firstClickPosition.snappedCoordinate?.y ?? firstClickPosition.interactionCoordinate.y;
+        return renderAnnotation({
+          ...baseAnnotation,
+          positionType: 'pixel',
+          pointA: syntheticPoint(anchorX, anchorY),
+          pointB: syntheticPoint(anchorX + DEFAULT_RECT_WIDTH, anchorY + DEFAULT_RECT_HEIGHT),
+        });
+      }
+    }
     return renderAnnotation({ ...baseAnnotation, pointA: firstClickPosition, pointB: position });
   }
 
   // Before the first click: show a default-sized preview.
   if (type === 'circle') {
-    // Real cursor = pointB (edge); anchor = offset left so radius = DEFAULT_CIRCLE_RADIUS.
+    if (snapMode === 'none') {
+      // Pixel mode: real cursor = pointB (edge); anchor offset left so radius = DEFAULT_CIRCLE_RADIUS.
+      return renderAnnotation({
+        ...baseAnnotation,
+        pointA: syntheticPoint(px - DEFAULT_CIRCLE_RADIUS, py),
+        pointB: position,
+      });
+    }
+    // Data/tick mode: cursor = centre; show pixel circle of default radius.
+    // We use positionType 'pixel' so CircleAnnotation can render without a dataPoint on pointB.
     return renderAnnotation({
       ...baseAnnotation,
-      pointA: syntheticPoint(px - DEFAULT_CIRCLE_RADIUS, py),
-      pointB: position,
+      positionType: 'pixel',
+      pointA: syntheticPoint(px, py),
+      pointB: syntheticPoint(px + DEFAULT_CIRCLE_RADIUS, py),
     });
   }
   if (type === 'rectangle') {
-    // Real cursor = bottom-right corner (pointB); anchor = offset to top-left.
+    if (snapMode === 'none') {
+      // Pixel mode: real cursor = bottom-right corner (pointB); anchor = offset to top-left.
+      return renderAnnotation({
+        ...baseAnnotation,
+        pointA: syntheticPoint(px - DEFAULT_RECT_WIDTH, py - DEFAULT_RECT_HEIGHT),
+        pointB: position,
+      });
+    }
+    // Data/tick mode: cursor = top-left corner; show pixel rectangle of default size.
+    // We use positionType 'pixel' so RectangleAnnotation can render without dataPoints.
     return renderAnnotation({
       ...baseAnnotation,
-      pointA: syntheticPoint(px - DEFAULT_RECT_WIDTH, py - DEFAULT_RECT_HEIGHT),
-      pointB: position,
+      positionType: 'pixel',
+      pointA: syntheticPoint(px, py),
+      pointB: syntheticPoint(px + DEFAULT_RECT_WIDTH, py + DEFAULT_RECT_HEIGHT),
     });
   }
   if (type === 'freeformLine') {
@@ -175,9 +232,11 @@ export function RenderAnnotations({
 }: RenderAnnotationsProps) {
   const snap = useSnap(snapMode);
 
-  // Circle and rectangle use a fake cursor in pixel mode: the real cursor is hidden and
+  // Circle and rectangle use a fake cursor in pixel mode only: the real cursor is hidden and
   // the anchor crosshair is drawn at pointA (offset from the actual mouse position).
-  const useFakeCursor = isAdding === 'circle' || isAdding === 'rectangle';
+  // In data/tick mode the cursor stays visible and snaps directly to data points.
+  const useFakeCursor =
+    (isAdding === 'circle' || isAdding === 'rectangle') && snapMode === 'none';
 
   // Tracks the real (non-offset) cursor position at the last mouseDown for circle/rectangle.
   // Used to distinguish a click (tiny movement → two-click flow) from a drag (large movement

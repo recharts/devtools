@@ -76,9 +76,12 @@ function setup(type: AnnotationType, snapMode: SnapMode) {
 /**
  * For circle and rectangle in pixel mode, RenderAnnotations applies applyAnchorOffset
  * before forwarding to onChartMouseDown.  This helper mirrors that transform.
+ * In data/tick modes applyAnchorOffset is a no-op, so the result is just the snap itself.
  */
 function anchorSnap(type: AnnotationType, snapMode: SnapMode, x: number, y: number): SnapResult {
-  return applyAnchorOffset(pixelSnap(x, y), type, snapMode);
+  const base =
+    snapMode === 'data' ? dataSnap(x, y) : snapMode === 'tick' ? tickSnap(x, y) : pixelSnap(x, y);
+  return applyAnchorOffset(base, type, snapMode);
 }
 
 // ─── Single-click annotation tests ───────────────────────────────────────────
@@ -354,6 +357,121 @@ describe('two-point annotations', () => {
       expect(x).toBe(realCursorX - DEFAULT_RECT_WIDTH);
       expect(y).toBe(realCursorY - DEFAULT_RECT_HEIGHT);
     });
+  });
+});
+
+// ─── Snap-mode-aware confirmation threshold ───────────────────────────────────
+//
+// In pixel mode, circle/rectangle have an offset anchor (pointA is shifted away from
+// the real cursor by DEFAULT_CIRCLE_RADIUS / DEFAULT_RECT dimensions), so the hook
+// must use a larger minimum distance to avoid confirming on the first stationary click.
+//
+// In data/tick mode there is no offset, so the threshold should revert to the base
+// value (3px) — allowing even a small drag to confirm the annotation.
+
+describe('confirmation threshold is snap-mode-aware', () => {
+  // Pixel mode: mouseUp at the real cursor position must NOT confirm.
+  // anchor=(70,80), real cursor=(100,80), dist=30 which is < threshold(3+30=33).
+  it('circle pixel mode: mouseUp at real-cursor position does not confirm (anchor-offset threshold)', () => {
+    const result = setup('circle', 'none');
+    const anchor = anchorSnap('circle', 'none', 100, 80); // → (70, 80)
+    const realCursor = pixelSnap(100, 80); // dist from anchor = 30 < 33
+
+    act(() => {
+      result.current.onChartMouseDown(anchor);
+    });
+    act(() => {
+      result.current.onChartMouseUp(realCursor);
+    });
+
+    expect(result.current.annotations).toHaveLength(0);
+    expect(result.current.isAdding).toBe('circle');
+    expect(result.current.firstClickPosition).toBe(anchor);
+  });
+
+  // Data mode: a small 4px drag must confirm (threshold is just 3px).
+  // Without the fix the hook uses threshold=33 and 4 < 33 → no confirm (bug).
+  it('circle data mode: 4px drag confirms (threshold is 3px)', () => {
+    const result = setup('circle', 'data');
+    const anchor = dataSnap(100, 80);
+    const nearby = dataSnap(104, 80); // dist = 4 > 3
+
+    act(() => {
+      result.current.onChartMouseDown(anchor);
+    });
+    act(() => {
+      result.current.onChartMouseUp(nearby);
+    });
+
+    expect(result.current.annotations).toHaveLength(1);
+    expect(result.current.isAdding).toBeNull();
+  });
+
+  it('circle tick mode: 4px drag confirms (threshold is 3px)', () => {
+    const result = setup('circle', 'tick');
+    const anchor = tickSnap(100, 80);
+    const nearby = tickSnap(104, 80);
+
+    act(() => {
+      result.current.onChartMouseDown(anchor);
+    });
+    act(() => {
+      result.current.onChartMouseUp(nearby);
+    });
+
+    expect(result.current.annotations).toHaveLength(1);
+    expect(result.current.isAdding).toBeNull();
+  });
+
+  // Rectangle pixel mode: anchor=(40,40), real cursor=(100,80).
+  // dist(anchor, cursor)=sqrt(60²+40²)≈72.1, threshold=3+72.1≈75.1 → no confirm.
+  it('rectangle pixel mode: mouseUp at real-cursor position does not confirm (anchor-offset threshold)', () => {
+    const result = setup('rectangle', 'none');
+    const anchor = anchorSnap('rectangle', 'none', 100, 80); // → (40, 40)
+    const realCursor = pixelSnap(100, 80); // dist ≈ 72.1 < threshold ≈ 75.1
+
+    act(() => {
+      result.current.onChartMouseDown(anchor);
+    });
+    act(() => {
+      result.current.onChartMouseUp(realCursor);
+    });
+
+    expect(result.current.annotations).toHaveLength(0);
+    expect(result.current.isAdding).toBe('rectangle');
+    expect(result.current.firstClickPosition).toBe(anchor);
+  });
+
+  it('rectangle data mode: 4px drag confirms (threshold is 3px)', () => {
+    const result = setup('rectangle', 'data');
+    const anchor = dataSnap(100, 80);
+    const nearby = dataSnap(104, 80); // dist = 4 > 3
+
+    act(() => {
+      result.current.onChartMouseDown(anchor);
+    });
+    act(() => {
+      result.current.onChartMouseUp(nearby);
+    });
+
+    expect(result.current.annotations).toHaveLength(1);
+    expect(result.current.isAdding).toBeNull();
+  });
+
+  it('rectangle tick mode: 4px drag confirms (threshold is 3px)', () => {
+    const result = setup('rectangle', 'tick');
+    const anchor = tickSnap(100, 80);
+    const nearby = tickSnap(104, 80);
+
+    act(() => {
+      result.current.onChartMouseDown(anchor);
+    });
+    act(() => {
+      result.current.onChartMouseUp(nearby);
+    });
+
+    expect(result.current.annotations).toHaveLength(1);
+    expect(result.current.isAdding).toBeNull();
   });
 });
 
