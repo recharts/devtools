@@ -25,7 +25,6 @@ import {
   DEFAULT_CIRCLE_RADIUS,
   DEFAULT_RECT_WIDTH,
   DEFAULT_RECT_HEIGHT,
-  DRAG_THRESHOLD,
   applyAnchorOffset,
   isDragInteraction,
 } from './annotationInteractionUtils.js';
@@ -149,8 +148,10 @@ function renderFollowerAnnotation(
         // so fall back to pixel rendering.  Use the snapped pixel as the anchor corner so
         // the default-size rectangle sits at the same position as both the pre-click preview
         // and the post-move data-mode rendering.
-        const anchorX = firstClickPosition.snappedCoordinate?.x ?? firstClickPosition.interactionCoordinate.x;
-        const anchorY = firstClickPosition.snappedCoordinate?.y ?? firstClickPosition.interactionCoordinate.y;
+        const anchorX =
+          firstClickPosition.snappedCoordinate?.x ?? firstClickPosition.interactionCoordinate.x;
+        const anchorY =
+          firstClickPosition.snappedCoordinate?.y ?? firstClickPosition.interactionCoordinate.y;
         return renderAnnotation({
           ...baseAnnotation,
           positionType: 'pixel',
@@ -235,8 +236,7 @@ export function RenderAnnotations({
   // Circle and rectangle use a fake cursor in pixel mode only: the real cursor is hidden and
   // the anchor crosshair is drawn at pointA (offset from the actual mouse position).
   // In data/tick mode the cursor stays visible and snaps directly to data points.
-  const useFakeCursor =
-    (isAdding === 'circle' || isAdding === 'rectangle') && snapMode === 'none';
+  const useFakeCursor = (isAdding === 'circle' || isAdding === 'rectangle') && snapMode === 'none';
 
   // Tracks the real (non-offset) cursor position at the last mouseDown for circle/rectangle.
   // Used to distinguish a click (tiny movement → two-click flow) from a drag (large movement

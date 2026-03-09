@@ -322,7 +322,6 @@ describe('two-point annotations', () => {
       const realCursorX = 100;
       const realCursorY = 80;
       const anchor = anchorSnap('circle', 'none', realCursorX, realCursorY);
-      const realCursor = pixelSnap(realCursorX, realCursorY);
 
       act(() => {
         result.current.onChartMouseDown(anchor);
@@ -345,7 +344,6 @@ describe('two-point annotations', () => {
       const realCursorX = 100;
       const realCursorY = 80;
       const anchor = anchorSnap('rectangle', 'none', realCursorX, realCursorY);
-      const realCursor = pixelSnap(realCursorX, realCursorY);
 
       act(() => {
         result.current.onChartMouseDown(anchor);
