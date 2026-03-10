@@ -13,6 +13,8 @@ import { InspectorDef } from '../types.js';
 import { useSessionStorageState } from '../hooks/useSessionStorageState.js';
 import { useRechartsDevtoolsContext } from '../context/RechartsDevtoolsContext.js';
 import { RechartsAnnotations } from './RechartsAnnotations.js';
+import { YAxisTicksInspector } from '../inspectors/YAxisTicksInspector';
+import { XAxisTicksInspector } from '../inspectors/XAxisTicksInspector';
 
 const INSPECTORS: Record<string, InspectorDef> = {
   'useChartWidth | useChartHeight': ChartDimensionInspector,
@@ -23,6 +25,8 @@ const INSPECTORS: Record<string, InspectorDef> = {
   useXAxisDomain: XAxisDomainInspector,
   useYAxisDomain: YAxisDomainInspector,
   useActiveTooltipLabel: ActiveTooltipLabelInspector,
+  useXAxisTicks: XAxisTicksInspector,
+  useYAxisTicks: YAxisTicksInspector,
 };
 
 export type InspectorKey = keyof typeof INSPECTORS;
