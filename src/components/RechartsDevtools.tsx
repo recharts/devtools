@@ -13,8 +13,8 @@ import { InspectorDef } from '../types.js';
 import { useSessionStorageState } from '../hooks/useSessionStorageState.js';
 import { useRechartsDevtoolsContext } from '../context/RechartsDevtoolsContext.js';
 import { RechartsAnnotations } from './RechartsAnnotations.js';
-import { YAxisTicksInspector } from '../inspectors/YAxisTicksInspector';
-import { XAxisTicksInspector } from '../inspectors/XAxisTicksInspector';
+import { YAxisTicksInspector } from '../inspectors/YAxisTicksInspector.js';
+import { XAxisTicksInspector } from '../inspectors/XAxisTicksInspector.js';
 
 const INSPECTORS: Record<string, InspectorDef> = {
   'useChartWidth | useChartHeight': ChartDimensionInspector,
