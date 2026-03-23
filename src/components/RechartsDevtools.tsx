@@ -52,6 +52,7 @@ export const RechartsDevtools = () => {
   const portalId = contextId ?? RECHARTS_DEVTOOLS_PORTAL_ID;
   const { selectedInspectorId, setSelectedInspectorId, selectedInspector } = useSelectedInspector();
   const [container, setContainer] = React.useState<HTMLElement | null>(null);
+  const selectId = React.useId();
 
   React.useEffect(() => {
     const el = document.getElementById(portalId);
@@ -92,8 +93,9 @@ export const RechartsDevtools = () => {
               <div
                 style={{ display: 'flex', alignItems: 'center', marginBottom: '4px', gap: '8px' }}
               >
-                <label>Inspect Hook:</label>
+                <label htmlFor={selectId}>Inspect Hook:</label>
                 <select
+                  id={selectId}
                   value={selectedInspectorId}
                   onChange={(e) => setSelectedInspectorId(e.target.value as InspectorKey)}
                   style={{ padding: '4px' }}
