@@ -19,3 +19,5 @@ export type {
 export { useAnnotationsManager } from './annotations/useAnnotationsManager.js';
 
 export { useWhyDidYouRender } from './hooks/useWhyDidYouRender.js';
+
+export { AnimationProgressControls } from './components/AnimationProgressControls.js';
