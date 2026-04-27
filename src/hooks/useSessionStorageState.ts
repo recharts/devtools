@@ -5,8 +5,11 @@ import { useState, useEffect } from 'react';
  *
  * In browsers without session storage support, it will fallback to `useState`.
  */
-export const useSessionStorageState = <T>(id: string, initialState: T) => {
-  const [state, setState] = useState(() => {
+export const useSessionStorageState = <T>(
+  id: string,
+  initialState: T,
+): [state: T, setState: (newState: T) => void] => {
+  const [state, setState] = useState<T>(() => {
     try {
       const storedState = sessionStorage.getItem(id);
       return storedState ? JSON.parse(storedState) : initialState;
