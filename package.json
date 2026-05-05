@@ -19,8 +19,7 @@
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "lint": "eslint src test",
-    "format": "prettier --write \"{src,test}/**/*.ts\"",
-    "release": "node ./scripts/publish.js"
+    "format": "prettier --write \"{src,test}/**/*.ts\""
   },
   "keywords": [
     "recharts",
