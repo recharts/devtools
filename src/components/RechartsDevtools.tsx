@@ -15,6 +15,8 @@ import { useRechartsDevtoolsContext } from '../context/RechartsDevtoolsContext.j
 import { RechartsAnnotations } from './RechartsAnnotations.js';
 import { YAxisTicksInspector } from '../inspectors/YAxisTicksInspector.js';
 import { XAxisTicksInspector } from '../inspectors/XAxisTicksInspector.js';
+import { useIsTooltipActiveInspector } from '../inspectors/useIsTooltipActiveInspector.js';
+import { useActiveTooltipCoordinateInspector } from '../inspectors/useActiveTooltipCoordinateInspector.js';
 
 const INSPECTORS: Record<string, InspectorDef> = {
   'useChartWidth | useChartHeight': ChartDimensionInspector,
@@ -27,6 +29,8 @@ const INSPECTORS: Record<string, InspectorDef> = {
   useActiveTooltipLabel: ActiveTooltipLabelInspector,
   useXAxisTicks: XAxisTicksInspector,
   useYAxisTicks: YAxisTicksInspector,
+  useIsTooltipActive: useIsTooltipActiveInspector,
+  useActiveTooltipCoordinate: useActiveTooltipCoordinateInspector,
 };
 
 export type InspectorKey = keyof typeof INSPECTORS;
