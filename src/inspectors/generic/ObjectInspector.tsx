@@ -53,11 +53,27 @@ export function ValueInspector({ value }: { value: unknown }) {
   return <NotPrimitiveInspector value={value} />;
 }
 
-export function ObjectInspector({ obj }: { obj: Record<string, unknown> | undefined }) {
+function getOwnEnumerableKeys<T extends object>(obj: T) {
+  const keys: Array<Extract<keyof T, string>> = [];
+
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      keys.push(key);
+    }
+  }
+
+  return keys;
+}
+
+export function ObjectInspector<T extends object>({
+  obj,
+}: {
+  obj: Readonly<T> | undefined;
+}) {
   if (obj == null) {
     return <code>{serializePrimitive(obj)}</code>;
   }
-  const keys = Object.keys(obj);
+  const keys = getOwnEnumerableKeys(obj);
 
   return (
     <div>
