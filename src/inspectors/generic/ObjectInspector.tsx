@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PrimitiveInspector } from './PrimitiveInspector.js';
+import { PrimitiveInspector, serializePrimitive } from './PrimitiveInspector.js';
 
 /*
  * Values that are expanded by default:
@@ -53,9 +53,9 @@ export function ValueInspector({ value }: { value: unknown }) {
   return <NotPrimitiveInspector value={value} />;
 }
 
-export function ObjectInspector({ obj }: { obj: Record<string, any> | undefined }) {
+export function ObjectInspector({ obj }: { obj: Record<string, unknown> | undefined }) {
   if (obj == null) {
-    return <code>{JSON.stringify(obj)}</code>;
+    return <code>{serializePrimitive(obj)}</code>;
   }
   const keys = Object.keys(obj);
 
