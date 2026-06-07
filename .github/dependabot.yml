@@ -14,3 +14,10 @@ updates:
       - 'dependencies'
     # max of 10 PRs at a time from dependabot
     open-pull-requests-limit: 10
+    groups:
+      react:
+        patterns:
+          - 'react'
+          - '@types/react'
+          - 'react-dom'
+          - '@types/react-dom'
