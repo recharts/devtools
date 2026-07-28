@@ -17,6 +17,8 @@ import { YAxisTicksInspector } from '../inspectors/YAxisTicksInspector.js';
 import { XAxisTicksInspector } from '../inspectors/XAxisTicksInspector.js';
 import { useIsTooltipActiveInspector } from '../inspectors/useIsTooltipActiveInspector.js';
 import { useActiveTooltipCoordinateInspector } from '../inspectors/useActiveTooltipCoordinateInspector.js';
+import { useCartesianChartLayoutInspector } from '../inspectors/useCartesianChartLayoutInspector.js';
+import { usePolarChartLayoutInspector } from '../inspectors/usePolarChartLayoutInspector.js';
 
 const INSPECTORS: Record<string, InspectorDef> = {
   'useChartWidth | useChartHeight': ChartDimensionInspector,
@@ -31,6 +33,8 @@ const INSPECTORS: Record<string, InspectorDef> = {
   useYAxisTicks: YAxisTicksInspector,
   useIsTooltipActive: useIsTooltipActiveInspector,
   useActiveTooltipCoordinate: useActiveTooltipCoordinateInspector,
+  useCartesianChartLayout: useCartesianChartLayoutInspector,
+  usePolarChartLayout: usePolarChartLayoutInspector,
 };
 
 export type InspectorKey = keyof typeof INSPECTORS;
