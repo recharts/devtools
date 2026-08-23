@@ -14,7 +14,7 @@ export { RECHARTS_DEVTOOLS_PORTAL_ID, RECHARTS_ANNOTATIONS_PORTAL_ID } from './c
 // Re-export annotation types and utilities for advanced usage
 export type { Annotation, AnnotationType, AnnotationStyle } from './annotations/types.js';
 export { useAnnotationsManager } from './annotations/useAnnotationsManager.js';
-
+export { Blanket } from './annotations/Blanket.js';
 export { useWhyDidYouRender } from './hooks/useWhyDidYouRender.js';
 
 export { useSessionStorageState } from './hooks/useSessionStorageState.js';
