@@ -46,23 +46,26 @@ const buttonStyle: React.CSSProperties = {
   padding: '4px 8px',
   fontSize: '11px',
   cursor: 'pointer',
-  border: '1px solid #ccc',
+  border: '1px solid var(--rd-border, #ccc)',
   borderRadius: '3px',
-  background: '#fff',
+  background: 'var(--rd-surface, #fff)',
+  color: 'var(--rd-text, inherit)',
 };
 
 const activeButtonStyle: React.CSSProperties = {
   ...buttonStyle,
-  background: '#e0e0e0',
-  borderColor: '#999',
+  background: 'var(--rd-surface-active, #e0e0e0)',
+  borderColor: 'var(--rd-border-strong, #999)',
 };
 
 const inputStyle: React.CSSProperties = {
   width: '50px',
   fontSize: '11px',
   padding: '2px 4px',
-  border: '1px solid #ccc',
+  border: '1px solid var(--rd-border, #ccc)',
   borderRadius: '2px',
+  background: 'var(--rd-surface, #fff)',
+  color: 'var(--rd-text, inherit)',
 };
 
 const labelStyle: React.CSSProperties = {
@@ -135,7 +138,13 @@ function AnnotationEditForm({
   onUpdateAnnotation: (annotation: Annotation) => void;
 }) {
   return (
-    <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid #ddd' }}>
+    <div
+      style={{
+        marginTop: '8px',
+        paddingTop: '8px',
+        borderTop: '1px solid var(--rd-border-subtle, #ddd)',
+      }}
+    >
       {/* Position fields based on annotation type */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
         {(annotation.type === 'verticalLine' ||
@@ -427,7 +436,7 @@ export function AnnotationsController({
           ))}
         </div>
         {isAdding && (
-          <div style={{ marginTop: '6px', fontSize: '11px', color: '#666' }}>
+          <div style={{ marginTop: '6px', fontSize: '11px', color: 'var(--rd-text-muted, #666)' }}>
             Click on the chart to place the annotation
             {(isAdding === 'rectangle' || isAdding === 'freeformLine' || isAdding === 'circle') &&
               ' (click twice or drag to define dimensions)'}
@@ -443,7 +452,9 @@ export function AnnotationsController({
           Annotations ({annotations.length}):
         </div>
         {annotations.length === 0 ? (
-          <div style={{ fontSize: '11px', color: '#666' }}>No annotations yet</div>
+          <div style={{ fontSize: '11px', color: 'var(--rd-text-muted, #666)' }}>
+            No annotations yet
+          </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {annotations.map((annotation) => (
@@ -452,9 +463,12 @@ export function AnnotationsController({
                 style={{
                   padding: '8px',
                   border:
-                    selectedAnnotationId === annotation.id ? '2px solid #007bff' : '1px solid #ddd',
+                    selectedAnnotationId === annotation.id
+                      ? '2px solid var(--rd-accent, #007bff)'
+                      : '1px solid var(--rd-border-subtle, #ddd)',
                   borderRadius: '4px',
-                  background: '#fafafa',
+                  background: 'var(--rd-surface-raised, #fafafa)',
+                  color: 'var(--rd-text, inherit)',
                 }}
               >
                 {/* Annotation header */}
@@ -499,7 +513,7 @@ export function AnnotationsController({
                   <button
                     type="button"
                     onClick={() => onDeleteAnnotation(annotation.id)}
-                    style={{ ...buttonStyle, color: '#d00' }}
+                    style={{ ...buttonStyle, color: 'var(--rd-danger, #d00)' }}
                   >
                     Delete
                   </button>
