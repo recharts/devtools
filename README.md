@@ -1,5 +1,7 @@
 # @recharts/devtools
 
+> **This package is entirely optional.** Recharts works perfectly fine without it. `@recharts/devtools` provides quality of life improvements and development tools to help you build and debug Recharts-based applications more efficiently.
+
 Devtools for Recharts.
 
 [![npm version](https://badge.fury.io/js/@recharts%2Fdevtools.svg)](https://badge.fury.io/js/@recharts%2Fdevtools)
