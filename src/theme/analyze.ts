@@ -51,8 +51,6 @@ export type ThemeCheckOptions = {
    * `theme.chart.backgroundColor`. Pass more when the same theme shows on several surfaces, like cards.
    */
   backgrounds?: Readonly<Record<string, string>>;
-  /** Only check the first N `graphicalItems`, when your charts never show more series. */
-  seriesCount?: number;
   /** Defaults to all four. */
   visions?: ReadonlyArray<Vision>;
   /** From 0 to 1, see `simulateVision`. Defaults to 1. */
@@ -131,8 +129,9 @@ const DEFAULT_THRESHOLDS: Thresholds = {
 /** The checks that need `theme.typography.color`. */
 const LABEL_CHECKS: ReadonlyArray<CheckId> = ['textOnBackground', 'textOnSeries'];
 
-function readSeries(theme: RechartsTheme, count: number): ThemeSeries[] {
-  return theme.graphicalItems.slice(0, count).map((item, index) => {
+/** One entry per `graphicalItems` item, with the fill falling back to the stroke and the other way round. */
+function readSeries(theme: RechartsTheme): ThemeSeries[] {
+  return theme.graphicalItems.map((item, index) => {
     const color = item.fill ?? item.stroke;
     if (color == null) {
       throw new Error(`graphicalItems[${index}] has no fill or stroke color`);
@@ -147,6 +146,7 @@ function readSeries(theme: RechartsTheme, count: number): ThemeSeries[] {
   });
 }
 
+/** `options.backgrounds`, or else the theme's own page background. */
 function readBackgrounds(
   theme: RechartsTheme,
   options: ThemeCheckOptions,
@@ -180,7 +180,7 @@ export function analyzeTheme(theme: RechartsTheme, options: ThemeCheckOptions = 
   const enabled = (check: CheckId) =>
     options.checks?.[check] !== false && (text != null || !LABEL_CHECKS.includes(check));
 
-  const series = readSeries(theme, options.seriesCount ?? theme.graphicalItems.length);
+  const series = readSeries(theme);
   const backgrounds = readBackgrounds(theme, options);
   const checks: CheckResult[] = [];
 

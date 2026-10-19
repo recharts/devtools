@@ -10,6 +10,7 @@ function format(value: number, threshold: number | null): string {
   return value.toFixed(digits);
 }
 
+/** The suggested color as a sentence to append to a failure, or nothing when there is no fix. */
 function describeFix({ fix }: CheckResult): string {
   if (fix == null) {
     return '';
@@ -18,6 +19,7 @@ function describeFix({ fix }: CheckResult): string {
   return `. Try ${what} ${fix.to} instead of ${fix.from}`;
 }
 
+/** One failure as a line: the check, where, the colors, the measured value against its threshold, and the standard. */
 function describeFailure(result: CheckResult): string {
   const who =
     result.series.length === 0 ? 'text' : result.series.map((i) => `series ${i + 1}`).join(' vs ');

@@ -63,10 +63,6 @@ describe('analyzeTheme', () => {
     ).toThrow('must be opaque');
   });
 
-  test('checks only the first series when asked', () => {
-    expect(analyzeTheme(lightTheme, { seriesCount: 3 }).series).toHaveLength(3);
-  });
-
   test('composites the fill at its opacity before measuring', () => {
     const report = analyzeTheme(twoSeries, { visions: ['normal'] });
     const fill = report.checks.find(

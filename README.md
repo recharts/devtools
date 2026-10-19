@@ -71,7 +71,7 @@ function EditorWithPreview() {
 
 ## Theme accessibility checks
 
-`@recharts/devtools/theme` measures how readable the colors of a Recharts theme are. It takes your `RechartsTheme` object as it is. Nothing from React or Recharts runs: the theme is plain data, and Recharts only provides its type (Recharts 3.11 or newer). All the color math comes from [culori](https://culorijs.org/).
+`@recharts/devtools/theme` measures how readable the colors of a Recharts theme are. It takes your `RechartsTheme` object as it is. Nothing from React or Recharts runs: the theme is plain data, and Recharts only provides its type (Recharts 3.11.0-canary.6 or newer: earlier versions don't have the full `RechartsTheme` type). All the color math comes from [culori](https://culorijs.org/).
 
 For the theme's `pageBackground` (or any backgrounds you pass), and for typical vision plus simulated protanopia, deuteranopia and tritanopia, it checks:
 
@@ -92,7 +92,6 @@ import { myTheme } from './myTheme';
 
 test('my theme is readable', () => {
   const report = analyzeTheme(myTheme, {
-    seriesCount: 6,
     thresholds: { seriesDifference: 10, seriesDifferenceCvd: 2 },
     checks: { textOnSeries: false },
   });
