@@ -84,7 +84,7 @@ For the theme's `pageBackground` (or any backgrounds you pass), and for typical 
 | `seriesAsText` | a series color used for label text on the page | 4.5:1, SC 1.4.3 |
 | `textOnSeries` | `typography.color` on each series fill | 4.5:1, SC 1.4.3 |
 
-Every failed check comes with a fix: the nearest lighter or darker color, with the same hue, that would pass.
+A failed check usually comes with a fix: the nearest lighter or darker color, with the same hue, that would pass. `fix` is `null` when no lightness passes.
 
 ```ts
 import { analyzeTheme, themeFailures } from '@recharts/devtools/theme';
