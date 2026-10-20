@@ -8,6 +8,17 @@
   "description": "Devtools and helper functions for Recharts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./theme": {
+      "types": "./dist/theme/index.d.ts",
+      "default": "./dist/theme/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "dist"
   ],
@@ -30,6 +41,7 @@
   "license": "MIT",
   "devDependencies": {
     "@testing-library/react": "^16.3.2",
+    "@types/culori": "^4.0.1",
     "@types/node": "^26.1.0",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
@@ -40,7 +52,7 @@
     "prettier": "^3.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "recharts": "^3.8.0",
+    "recharts": "^3.11.0-canary.6",
     "typescript": "^5.0.0",
     "typescript-eslint": "^8.0.0",
     "vitest": "^5.0.2"
@@ -48,6 +60,20 @@
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0",
-    "recharts": "^3.9.0"
+    "recharts": "^3.9.0 || >=3.11.0-canary.6 <4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "recharts": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "culori": "^4.0.2"
   }
 }

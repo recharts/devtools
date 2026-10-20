@@ -2,6 +2,7 @@ export { between, random } from './random.js';
 export { generateMockData } from './generateMockData.js';
 export type { MockDataType } from './generateMockData.js';
 export { generateMockMarketData } from './generateMockMarketData.js';
+export type { MarketCandle } from './generateMockMarketData.js';
 export { RechartsDevtools } from './components/RechartsDevtools.js';
 export { RechartsAnnotations } from './components/RechartsAnnotations.js';
 export {
