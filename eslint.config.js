@@ -1,7 +1,7 @@
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import globals from 'globals';
-import importPlugin from 'eslint-plugin-import';
+import { importX } from 'eslint-plugin-import-x';
 
 export default tseslint.config(
     {
@@ -20,13 +20,13 @@ export default tseslint.config(
             },
         },
         plugins: {
-            import: importPlugin,
+            'import-x': importX,
         },
         rules: {
             '@typescript-eslint/no-explicit-any': 'warn',
             '@typescript-eslint/explicit-module-boundary-types': 'off',
             // Enforce .js extension for all local imports
-            'import/extensions': [
+            'import-x/extensions': [
                 'error',
                 'ignorePackages',
                 {
