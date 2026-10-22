@@ -18,6 +18,17 @@ import { nearestPassingColor } from './suggest.js';
  */
 export type Mark = 'fill' | 'stroke';
 
+/**
+ * The analysis that produced a `CheckResult`:
+ * - `seriesOnBackground`: non-text contrast between each series mark and its background.
+ * - `seriesVsSeries`: CIEDE2000 color difference between each pair of series marks.
+ * - `seriesContrast`: non-text contrast between each pair of series marks.
+ * - `textOnBackground`: text contrast between the label color and its background.
+ * - `seriesAsText`: text contrast between each series stroke and its background.
+ * - `textOnSeries`: text contrast between the label color and each series fill.
+ *
+ * Checks run for each configured background and simulated vision where applicable.
+ */
 export type CheckId =
   | 'seriesOnBackground'
   | 'seriesVsSeries'
