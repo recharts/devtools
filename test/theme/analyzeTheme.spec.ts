@@ -259,6 +259,25 @@ describe('analyzeTheme', () => {
     ]);
   });
 
+  test('reads a fill object as its solid color, or as the stroke when it has no color', () => {
+    const definition = () => null;
+    const report = analyzeTheme({
+      graphicalItems: [
+        { fill: { color: '#2775e8', definition }, stroke: '#000' },
+        { fill: { definition }, stroke: '#b65900' },
+      ],
+      pageBackground: '#fff',
+    });
+
+    expect(report.series).toEqual([
+      { index: 0, fill: '#2775e8', stroke: '#000', fillOpacity: 1 },
+      { index: 1, fill: '#b65900', stroke: '#b65900', fillOpacity: 1 },
+    ]);
+    expect(() =>
+      analyzeTheme({ graphicalItems: [{ fill: { definition } }], pageBackground: '#fff' }),
+    ).toThrow('graphicalItems[0] has no fill or stroke color');
+  });
+
   test.each([Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY])(
     'defaults non-finite fill opacity (%s) to one',
     (fillOpacity) => {
