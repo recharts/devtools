@@ -140,10 +140,15 @@ const DEFAULT_THRESHOLDS: Thresholds = {
 /** The checks that need `theme.typography.color`. */
 const LABEL_CHECKS: ReadonlyArray<CheckId> = ['textOnBackground', 'textOnSeries'];
 
-/** One entry per `graphicalItems` item, with the fill falling back to the stroke and the other way round. */
+/**
+ * One entry per `graphicalItems` item, with the fill falling back to the stroke and the other way round.
+ * A fill object (gradient or pattern) counts as its solid `color`, the one recharts uses for Tooltip and labels.
+ * Without a `color` it has no color of its own, so the stroke is used, as recharts does.
+ */
 function readSeries(theme: RechartsTheme): ThemeSeries[] {
   return theme.graphicalItems.map((item, index) => {
-    const color = item.fill ?? item.stroke;
+    const fill = typeof item.fill === 'string' ? item.fill : item.fill?.color;
+    const color = fill ?? item.stroke;
     if (color == null) {
       throw new Error(`graphicalItems[${index}] has no fill or stroke color`);
     }
