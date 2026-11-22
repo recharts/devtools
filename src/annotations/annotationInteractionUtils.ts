@@ -1,5 +1,5 @@
 import type { SnapResult } from './useSnap.js';
-import type { AnnotationType, SnapMode } from './types.js';
+import type { AnnotationType, PositionType, SnapMode } from './types.js';
 
 /**
  * Default dimensions for circle and rectangle pre-click follower previews (pixel mode only).
@@ -67,4 +67,29 @@ export function isDragInteraction(
   const dx = upPos.x - downPos.x;
   const dy = upPos.y - downPos.y;
   return Math.sqrt(dx * dx + dy * dy) > DRAG_THRESHOLD;
+}
+
+/**
+ * Decides whether an annotation is positioned by data values or by pixels.
+ *
+ * Data positioning is used only when snapping is on AND the points actually snapped
+ * (carry a `dataPoint`). Snapping can fail even when it is on, for example in 'tick' mode
+ * on a chart without a rendered <XAxis>/<YAxis>; such points fall back to pixel positioning,
+ * otherwise the annotation components would render nothing.
+ *
+ * Circles only need the centre (pointA) to be snapped; the radius is always in pixels.
+ */
+export function getPositionType(
+  snapMode: SnapMode,
+  type: AnnotationType,
+  pointA: SnapResult,
+  pointB?: SnapResult,
+): PositionType {
+  if (snapMode === 'none' || pointA.dataPoint == null) {
+    return 'pixel';
+  }
+  if (type !== 'circle' && pointB != null && pointB.dataPoint == null) {
+    return 'pixel';
+  }
+  return 'data';
 }

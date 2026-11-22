@@ -17,6 +17,7 @@
  */
 import React from 'react';
 import { createPortal } from 'react-dom';
+import { useXAxisInverseTickSnapScale, useYAxisInverseTickSnapScale } from 'recharts';
 import { RECHARTS_ANNOTATIONS_PORTAL_ID } from '../constants.js';
 import { useRechartsDevtoolsContext } from '../context/RechartsDevtoolsContext.js';
 import { AnnotationsController, RenderAnnotations, useAnnotationsManager } from '../annotations/index.js';
@@ -28,6 +29,10 @@ export const RechartsAnnotations = () => {
   const [container, setContainer] = React.useState<HTMLElement | null>(null);
 
   const annotationsManager = useAnnotationsManager();
+  // Tick snapping needs rendered ticks, which only a rendered <XAxis>/<YAxis> provides.
+  const xTickSnapScale = useXAxisInverseTickSnapScale();
+  const yTickSnapScale = useYAxisInverseTickSnapScale();
+  const tickSnapAvailable = xTickSnapScale != null && yTickSnapScale != null;
 
   React.useEffect(() => {
     const el = document.getElementById(portalId);
@@ -62,6 +67,7 @@ export const RechartsAnnotations = () => {
               isAdding={annotationsManager.isAdding}
               selectedAnnotationId={annotationsManager.selectedAnnotationId}
               snapMode={annotationsManager.snapMode}
+              tickSnapAvailable={tickSnapAvailable}
               onStartAdding={annotationsManager.startAddingAnnotation}
               onCancelAdding={annotationsManager.cancelAddingAnnotation}
               onDeleteAnnotation={annotationsManager.deleteAnnotation}

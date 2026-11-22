@@ -34,6 +34,12 @@ interface AnnotationsControllerProps {
   isAdding: AnnotationType | null;
   selectedAnnotationId: number | null;
   snapMode: SnapMode;
+  /**
+   * Whether snapping to axis ticks is possible. Tick snapping needs rendered ticks on both axes,
+   * so it is unavailable on charts without a rendered <XAxis> and <YAxis>.
+   * Defaults to true.
+   */
+  tickSnapAvailable?: boolean;
   onStartAdding: (type: AnnotationType) => void;
   onCancelAdding: () => void;
   onDeleteAnnotation: (id: number) => void;
@@ -78,11 +84,16 @@ const labelStyle: React.CSSProperties = {
   marginRight: '2ex',
 };
 
+const TICK_SNAP_UNAVAILABLE_REASON =
+  'Snapping to axis ticks needs a rendered <XAxis> and <YAxis>. Annotations are placed unsnapped.';
+
 function SnapModeRadioGroup({
   snapMode,
+  tickSnapAvailable,
   onSnapModeChange,
 }: {
   snapMode: SnapMode;
+  tickSnapAvailable: boolean;
   onSnapModeChange: (newSnapMode: SnapMode) => void;
 }) {
   const name = useId();
@@ -110,12 +121,16 @@ function SnapModeRadioGroup({
         />
         Snap to data points
       </label>
-      <label style={labelStyle}>
+      <label
+        style={tickSnapAvailable ? labelStyle : { ...labelStyle, opacity: 0.5 }}
+        title={tickSnapAvailable ? undefined : TICK_SNAP_UNAVAILABLE_REASON}
+      >
         <input
           type="radio"
           name={name}
           value="tick"
           checked={snapMode === 'tick'}
+          disabled={!tickSnapAvailable}
           onChange={() => onSnapModeChange('tick')}
         />
         Snap to axis ticks
@@ -391,6 +406,7 @@ export function AnnotationsController({
   isAdding,
   selectedAnnotationId,
   snapMode,
+  tickSnapAvailable = true,
   onStartAdding,
   onCancelAdding,
   onDeleteAnnotation,
@@ -444,7 +460,11 @@ export function AnnotationsController({
         )}
       </div>
 
-      <SnapModeRadioGroup snapMode={snapMode} onSnapModeChange={onSnapModeChange} />
+      <SnapModeRadioGroup
+        snapMode={snapMode}
+        tickSnapAvailable={tickSnapAvailable}
+        onSnapModeChange={onSnapModeChange}
+      />
 
       {/* Annotations list */}
       <div>

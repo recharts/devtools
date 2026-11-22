@@ -7,6 +7,7 @@ import {
   DEFAULT_CIRCLE_RADIUS,
   DEFAULT_RECT_HEIGHT,
   DEFAULT_RECT_WIDTH,
+  getPositionType,
 } from './annotationInteractionUtils.js';
 
 export interface UseAnnotationsManagerProps {
@@ -56,7 +57,7 @@ function annotationFactory(
   return {
     type,
     id: Date.now(),
-    positionType: snapMode === 'none' ? 'pixel' : 'data',
+    positionType: getPositionType(snapMode, type, pointA, pointB),
     style: baseStyle,
     pointA,
     pointB,

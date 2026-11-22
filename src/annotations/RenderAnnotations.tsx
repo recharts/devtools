@@ -26,6 +26,7 @@ import {
   DEFAULT_RECT_WIDTH,
   DEFAULT_RECT_HEIGHT,
   applyAnchorOffset,
+  getPositionType,
   isDragInteraction,
 } from './annotationInteractionUtils.js';
 
@@ -109,10 +110,9 @@ function renderFollowerAnnotation(
     fillOpacity: 0.1,
     pointerEvents: 'none' as const,
   };
-  const baseAnnotation: Omit<Annotation, 'pointA' | 'pointB'> = {
+  const baseAnnotation: Omit<Annotation, 'pointA' | 'pointB' | 'positionType'> = {
     type,
     id: -1, // Temporary ID for follower
-    positionType: snapMode === 'none' ? 'pixel' : 'data',
     style: baseStyle,
     label: type === 'label' ? { value: 'Label' } : undefined,
   };
@@ -139,6 +139,7 @@ function renderFollowerAnnotation(
         // radius from getDistance(pointA, pointB) using interactionCoordinate.
         return renderAnnotation({
           ...baseAnnotation,
+          positionType: getPositionType(snapMode, type, firstClickPosition),
           pointA: firstClickPosition,
           pointB: syntheticPoint(fpx + DEFAULT_CIRCLE_RADIUS, fpy),
         });
@@ -160,7 +161,12 @@ function renderFollowerAnnotation(
         });
       }
     }
-    return renderAnnotation({ ...baseAnnotation, pointA: firstClickPosition, pointB: position });
+    return renderAnnotation({
+      ...baseAnnotation,
+      positionType: getPositionType(snapMode, type, firstClickPosition, position),
+      pointA: firstClickPosition,
+      pointB: position,
+    });
   }
 
   // Before the first click: show a default-sized preview.
@@ -169,6 +175,7 @@ function renderFollowerAnnotation(
       // Pixel mode: real cursor = pointB (edge); anchor offset left so radius = DEFAULT_CIRCLE_RADIUS.
       return renderAnnotation({
         ...baseAnnotation,
+        positionType: 'pixel',
         pointA: syntheticPoint(px - DEFAULT_CIRCLE_RADIUS, py),
         pointB: position,
       });
@@ -187,6 +194,7 @@ function renderFollowerAnnotation(
       // Pixel mode: real cursor = bottom-right corner (pointB); anchor = offset to top-left.
       return renderAnnotation({
         ...baseAnnotation,
+        positionType: 'pixel',
         pointA: syntheticPoint(px - DEFAULT_RECT_WIDTH, py - DEFAULT_RECT_HEIGHT),
         pointB: position,
       });
@@ -202,15 +210,21 @@ function renderFollowerAnnotation(
   }
   if (type === 'freeformLine') {
     // Default short angled stub so the line direction is hinted at.
+    // positionType follows pointA only, so the snapped case behaves as before.
     return renderAnnotation({
       ...baseAnnotation,
+      positionType: getPositionType(snapMode, type, position),
       pointA: position,
       pointB: syntheticPoint(px + 30, py - 15),
     });
   }
 
   // Single-click annotations (horizontalLine, verticalLine, crosshair, label).
-  return renderAnnotation({ ...baseAnnotation, pointA: position });
+  return renderAnnotation({
+    ...baseAnnotation,
+    positionType: getPositionType(snapMode, type, position),
+    pointA: position,
+  });
 }
 
 /**
