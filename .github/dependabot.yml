@@ -21,3 +21,15 @@ updates:
           - '@types/react'
           - 'react-dom'
           - '@types/react-dom'
+
+  # Keep GitHub Actions used in workflows up to date
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    labels:
+      - 'dependencies'
+    groups:
+      github-actions:
+        patterns:
+          - '*'
