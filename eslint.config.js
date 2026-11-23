@@ -2,16 +2,16 @@ import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import globals from 'globals';
 import { importX } from 'eslint-plugin-import-x';
+import { defineConfig } from 'eslint/config';
 
-export default tseslint.config(
+export default defineConfig(
     {
         ignores: ['dist/'],
     },
     js.configs.recommended,
-    ...tseslint.configs.recommended,
+    tseslint.configs.recommended,
     {
         languageOptions: {
-            ecmaVersion: 2020,
             globals: {
                 ...globals.node,
             },
