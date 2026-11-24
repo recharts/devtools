@@ -65,14 +65,12 @@ export const RechartsAnnotations = () => {
             <AnnotationsController
               annotations={annotationsManager.annotations}
               isAdding={annotationsManager.isAdding}
-              selectedAnnotationId={annotationsManager.selectedAnnotationId}
               snapMode={annotationsManager.snapMode}
               tickSnapAvailable={tickSnapAvailable}
               onStartAdding={annotationsManager.startAddingAnnotation}
               onCancelAdding={annotationsManager.cancelAddingAnnotation}
               onDeleteAnnotation={annotationsManager.deleteAnnotation}
               onUpdateAnnotation={annotationsManager.updateAnnotation}
-              onSelectAnnotation={annotationsManager.selectAnnotation}
               onSnapModeChange={annotationsManager.setSnapMode}
             />
           </div>,
