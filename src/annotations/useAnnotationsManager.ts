@@ -21,7 +21,6 @@ export interface UseAnnotationsManagerReturn {
   isAdding: AnnotationType | null;
   followerPosition: SnapResult | null;
   firstClickPosition: SnapResult | null;
-  selectedAnnotationId: number | null;
   snapMode: SnapMode;
 
   // Actions
@@ -29,7 +28,6 @@ export interface UseAnnotationsManagerReturn {
   cancelAddingAnnotation: () => void;
   deleteAnnotation: (id: number) => void;
   updateAnnotation: (annotation: Annotation) => void;
-  selectAnnotation: (id: number | null) => void;
   setSnapMode: (newSnapMode: SnapMode) => void;
 
   // Mouse event handlers for the chart
@@ -79,7 +77,6 @@ export const useAnnotationsManager = (
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
   const [isAdding, setIsAdding] = useState<AnnotationType | null>(null);
   const [followerPosition, setFollowerPosition] = useState<SnapResult | null>(null);
-  const [selectedAnnotationId, setSelectedAnnotationId] = useState<number | null>(null);
   const [snapMode, setSnapMode] = useState<SnapMode>('none');
   // Track click positions for multi-click annotations (rectangle, freeform line)
   const [firstClickPosition, setFirstClickPosition] = useState<SnapResult | null>(null);
@@ -100,11 +97,8 @@ export const useAnnotationsManager = (
     (id: number) => {
       setAnnotations((prev) => prev.filter((a) => a.id !== id));
       props?.onAnnotationDelete?.(id);
-      if (selectedAnnotationId === id) {
-        setSelectedAnnotationId(null);
-      }
     },
-    [props, selectedAnnotationId],
+    [props],
   );
 
   const updateAnnotation = useCallback(
@@ -116,10 +110,6 @@ export const useAnnotationsManager = (
     },
     [props],
   );
-
-  const selectAnnotation = useCallback((id: number | null) => {
-    setSelectedAnnotationId(id);
-  }, []);
 
   const createAnnotation = useCallback(
     (
@@ -235,13 +225,11 @@ export const useAnnotationsManager = (
     isAdding,
     followerPosition,
     firstClickPosition,
-    selectedAnnotationId,
     snapMode,
     startAddingAnnotation,
     cancelAddingAnnotation,
     deleteAnnotation,
     updateAnnotation,
-    selectAnnotation,
     setSnapMode,
     onChartClick,
     onChartMouseDown,

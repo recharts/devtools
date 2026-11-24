@@ -32,7 +32,6 @@ const ANNOTATION_TYPES: { type: AnnotationType; label: string }[] = [
 interface AnnotationsControllerProps {
   annotations: Annotation[];
   isAdding: AnnotationType | null;
-  selectedAnnotationId: number | null;
   snapMode: SnapMode;
   /**
    * Whether snapping to axis ticks is possible. Tick snapping needs rendered ticks on both axes,
@@ -44,7 +43,6 @@ interface AnnotationsControllerProps {
   onCancelAdding: () => void;
   onDeleteAnnotation: (id: number) => void;
   onUpdateAnnotation: (annotation: Annotation) => void;
-  onSelectAnnotation: (id: number | null) => void;
   onSnapModeChange: (newSnapMode: SnapMode) => void;
 }
 
@@ -404,14 +402,12 @@ function AnnotationEditForm({
 export function AnnotationsController({
   annotations,
   isAdding,
-  selectedAnnotationId,
   snapMode,
   tickSnapAvailable = true,
   onStartAdding,
   onCancelAdding,
   onDeleteAnnotation,
   onUpdateAnnotation,
-  onSelectAnnotation,
   onSnapModeChange,
 }: AnnotationsControllerProps) {
   const [expandedAnnotationId, setExpandedAnnotationId] = useState<number | null>(null);
@@ -482,10 +478,7 @@ export function AnnotationsController({
                 key={annotation.id}
                 style={{
                   padding: '8px',
-                  border:
-                    selectedAnnotationId === annotation.id
-                      ? '2px solid var(--rd-accent, #007bff)'
-                      : '1px solid var(--rd-border-subtle, #ddd)',
+                  border: '1px solid var(--rd-border-subtle, #ddd)',
                   borderRadius: '4px',
                   background: 'var(--rd-surface-raised, #fafafa)',
                   color: 'var(--rd-text, inherit)',
@@ -518,17 +511,6 @@ export function AnnotationsController({
                     style={buttonStyle}
                   >
                     {expandedAnnotationId === annotation.id ? '▼' : '▶'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      onSelectAnnotation(
-                        selectedAnnotationId === annotation.id ? null : annotation.id,
-                      )
-                    }
-                    style={selectedAnnotationId === annotation.id ? activeButtonStyle : buttonStyle}
-                  >
-                    {selectedAnnotationId === annotation.id ? 'Deselect' : 'Select'}
                   </button>
                   <button
                     type="button"
